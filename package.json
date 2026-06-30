@@ -1,0 +1,21 @@
+{
+  "name": "market-retail-app",
+  "version": "1.0.0",
+  "description": "Application retail : parcours client optimise, gestion des stocks collaborateur et tableau de bord manager en temps reel.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "retail",
+    "supermarche",
+    "pathfinding",
+    "dashboard"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
