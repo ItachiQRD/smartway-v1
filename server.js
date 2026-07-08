@@ -7,6 +7,15 @@ import { buildStore } from "./src/storeData.js";
 import { planRoute } from "./src/pathfinding.js";
 import { createSimulation } from "./src/simulation.js";
 import { initPersistence, schedulePersist, persistNow, resetMutableState } from "./src/persist.js";
+import {
+  getImportTemplates,
+  serializeLayout,
+  serializeCatalog,
+  applyLayoutImport,
+  applyCatalogImport,
+  loadStoreConfig,
+  saveStoreConfig,
+} from "./src/import.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -16,6 +25,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 const store = buildStore();
+loadStoreConfig(store);
 initPersistence(store);
 const sim = createSimulation(store);
 const ROLES = ["client", "collaborateur", "manager"];
@@ -351,6 +361,41 @@ app.get("/api/manager/dashboard", auth("manager"), (req, res) => res.json(sim.ma
 app.get("/api/manager/rayons", auth("manager"), (req, res) => res.json(sim.rayonPerformance()));
 app.get("/api/manager/heatmap", auth("manager"), (req, res) => res.json(sim.heatmap()));
 app.get("/api/manager/alerts", auth("manager"), (req, res) => res.json(sim.operationalAlerts()));
+
+// --- ADMIN : import catalogue & plan magasin (role Manager) ---
+app.get("/api/admin/import/templates", auth("manager"), (_req, res) => {
+  res.json(getImportTemplates());
+});
+
+app.get("/api/admin/export/layout", auth("manager"), (_req, res) => {
+  res.json(serializeLayout(store));
+});
+
+app.get("/api/admin/export/products", auth("manager"), (_req, res) => {
+  res.json(serializeCatalog(store));
+});
+
+app.post("/api/admin/import/layout", auth("manager"), (req, res) => {
+  try {
+    const summary = applyLayoutImport(store, req.body);
+    saveStoreConfig(store);
+    touchStore("layout");
+    res.json({ ok: true, ...summary });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post("/api/admin/import/products", auth("manager"), (req, res) => {
+  try {
+    const summary = applyCatalogImport(store, req.body);
+    saveStoreConfig(store);
+    touchStore("catalog");
+    res.json({ ok: true, ...summary });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));

@@ -180,6 +180,8 @@ export function buildStore() {
 
     return {
       id: pid,
+      sku: `SKU-${pid}`,
+      ean: null,
       name: def.name,
       brand: def.brand,
       rayonId: def.rayonId,
@@ -221,6 +223,7 @@ export function buildStore() {
     const rack = RACKS[r.rack];
     return {
       id: r.id,
+      code: `R${r.id}`,
       name: r.name,
       icon: r.icon,
       aisle: `Allee ${rack.letter}`,

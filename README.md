@@ -87,6 +87,71 @@ public/
 
 Paiement réel, connexion réelle caisses/stocks, géolocalisation indoor, IA avancée, app native, fidélité réelle, scan produit réel.
 
+## Import magasin (catalogue + plan)
+
+Une enseigne peut alimenter SmartWay via **API JSON** (role **Manager** requis).
+
+### 1. Catalogue produits
+
+`POST /api/admin/import/products`
+
+```json
+{
+  "mode": "replace",
+  "products": [
+    {
+      "sku": "LAIT-1L",
+      "ean": "3250392001234",
+      "name": "Lait demi-ecreme 1L",
+      "brand": "Lactel",
+      "rayonCode": "R2",
+      "price": 1.15,
+      "stock": 48,
+      "shelf": { "x": 9, "y": 4 },
+      "access": { "x": 8, "y": 4 }
+    }
+  ]
+}
+```
+
+- `mode: "replace"` — remplace tout le catalogue
+- `mode: "merge"` — met a jour par `sku` / `ean`, ajoute les nouveaux
+- `rayonCode`, `rayonId` ou `rayon` (nom) pour lier au rayon
+- `shelf` + `access` : position sur le plan (sinon calcule auto depuis le rayon)
+
+Export actuel : `GET /api/admin/export/products`
+
+### 2. Plan du magasin (circuit / parcours)
+
+Le parcours utilise une **grille 2D** :
+
+| Valeur | Signification |
+|--------|----------------|
+| `0` | Allee (le client marche ici) |
+| `1` | Rayon / etagere (obstacle) |
+| `2` | Zone caisse |
+
++ point `entrance` `{ x, y }`
++ liste `rayons` (nom, code, bounds pour heatmap)
++ liste `checkouts` (access + marker)
+
+`POST /api/admin/import/layout` avec le JSON plan complet.
+
+Export du plan actuel (base de travail) : `GET /api/admin/export/layout`
+
+Modeles : `GET /api/admin/import/templates` ou fichiers dans `data/templates/`.
+
+### 3. Sources reelles en production
+
+| Source enseigne | Integration SmartWay |
+|-----------------|----------------------|
+| PIM / MDM produits | Connecteur nightly → `POST /import/products` |
+| ERP / WMS stocks | `merge` horaire sur `stock` |
+| Plan AutoCAD / SVG | Conversion service → grille JSON |
+| IoT / caisses | API temps reel (files d'attente) — V2 |
+
+La config importee est persistee dans `data/store-config.json` (local) ou `/tmp` (Vercel).
+
 ## Pistes V2
 
 Persistance cloud (Supabase), authentification sécurisée, localisation indoor réelle, optimisation TSP (2-opt), notifications push, historique multi-jours, export CSV/PDF.

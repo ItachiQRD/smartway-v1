@@ -8,3 +8,4 @@ Thumbs.db
 *.log
 npm-debug.log*
 data/demo-state.json
+data/store-config.json

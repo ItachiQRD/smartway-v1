@@ -1,0 +1,36 @@
+{
+  "mode": "replace",
+  "products": [
+    {
+      "sku": "LAIT-1L-001",
+      "ean": "3250392001234",
+      "name": "Lait demi-ecreme 1L",
+      "brand": "Lactel",
+      "rayonCode": "R2",
+      "price": 1.15,
+      "stock": 48,
+      "capacity": 60,
+      "shelf": { "x": 9, "y": 4 },
+      "access": { "x": 8, "y": 4 },
+      "promo": { "percent": 10, "label": "-10% fidelite" }
+    },
+    {
+      "sku": "BAGUETTE-TRAD",
+      "name": "Baguette tradition",
+      "brand": "Maison",
+      "rayonCode": "R1",
+      "price": 1.1,
+      "stock": 30,
+      "shelf": { "x": 4, "y": 11 }
+    },
+    {
+      "sku": "PENNE-500",
+      "name": "Penne 500g",
+      "brand": "Barilla",
+      "rayonId": 4,
+      "price": 1.45,
+      "stock": 22,
+      "promo": { "percent": 25, "label": "Lot -25%" }
+    }
+  ]
+}
