@@ -17,14 +17,35 @@ app.use(express.static(path.join(__dirname, "public")));
 const store = buildStore();
 const sim = createSimulation(store);
 const ROLES = ["client", "collaborateur", "manager"];
-const sessions = new Map();
+const AUTH_SECRET = process.env.SMARTWAY_AUTH_SECRET || "smartway-demo-v1";
 
 setInterval(() => sim.tick(), 2000);
+
+// Jeton signe sans etat serveur (compatible Vercel / serverless).
+function signToken(name, role) {
+  const payload = Buffer.from(JSON.stringify({ name, role }), "utf8").toString("base64url");
+  const sig = crypto.createHmac("sha256", AUTH_SECRET).update(payload).digest("base64url");
+  return `${payload}.${sig}`;
+}
+
+function parseToken(token) {
+  if (!token || !token.includes(".")) return null;
+  const [payload, sig] = token.split(".");
+  const expected = crypto.createHmac("sha256", AUTH_SECRET).update(payload).digest("base64url");
+  if (sig !== expected) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (!data.name || !ROLES.includes(data.role)) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
 
 function auth(requiredRole) {
   return (req, res, next) => {
     const token = (req.headers.authorization || "").replace("Bearer ", "");
-    const session = sessions.get(token);
+    const session = parseToken(token);
     if (!session) return res.status(401).json({ error: "Non authentifie" });
     if (requiredRole && session.role !== requiredRole) {
       return res.status(403).json({ error: "Acces refuse pour ce role" });
@@ -57,14 +78,10 @@ app.post("/api/login", (req, res) => {
   if (!name || !ROLES.includes(role)) {
     return res.status(400).json({ error: "Nom et role valides requis" });
   }
-  const token = crypto.randomBytes(16).toString("hex");
-  sessions.set(token, { name, role });
-  res.json({ token, name, role });
+  res.json({ token: signToken(name, role), name, role });
 });
 
-app.post("/api/logout", auth(), (req, res) => {
-  const token = (req.headers.authorization || "").replace("Bearer ", "");
-  sessions.delete(token);
+app.post("/api/logout", (_req, res) => {
   res.json({ ok: true });
 });
 

@@ -15,8 +15,39 @@ const MODULES = {
   manager: managerModule,
 };
 const ROLE_LABEL = { client: "Client", collaborateur: "Collaborateur", manager: "Manager" };
+const DEMO_USERS = { client: "Alex", collaborateur: "Sophie", manager: "Lea" };
 
 let pageCleanup = () => {};
+
+// Connexion demo en 1 clic (sans modal).
+async function quickEnter(role) {
+  try {
+    const data = await api.login(DEMO_USERS[role], role);
+    setSession(data);
+    pageCleanup();
+    pageCleanup = () => {};
+    await enterApp(`${role}/${MODULES[role].nav[0].key}`);
+  } catch (err) {
+    toast(err.message || "Connexion impossible");
+  }
+}
+
+async function switchRole(role) {
+  if (!MODULES[role]) return;
+  const session = getSession();
+  if (session?.role === role) return;
+  try {
+    const data = await api.login(DEMO_USERS[role], role);
+    setSession(data);
+    state.bootstrap = null;
+    pageCleanup();
+    pageCleanup = () => {};
+    toast(`Espace ${ROLE_LABEL[role]} — exploration demo`);
+    await enterApp(`${role}/${MODULES[role].nav[0].key}`);
+  } catch (err) {
+    toast(err.message || "Changement d'espace impossible");
+  }
+}
 
 // ---------- LANDING ----------
 function renderLanding() {
@@ -24,61 +55,11 @@ function renderLanding() {
   pageCleanup = () => {};
   document.body.classList.remove("in-app");
   root.innerHTML = "";
-  const cleanup = mountLanding(root, { onSelectRole: openLogin });
+  const cleanup = mountLanding(root, {
+    onSelectRole: quickEnter,
+    onStartDemo: () => quickEnter("client"),
+  });
   pageCleanup = cleanup || (() => {});
-}
-
-// ---------- LOGIN MODAL ----------
-function openLogin(role) {
-  const clients = state.bootstrap?.clients || [
-    { id: 1, prenom: "Alex" },
-    { id: 2, prenom: "Julie" },
-    { id: 3, prenom: "Marc" },
-  ];
-  const isClient = role === "client";
-  const overlay = h(`
-    <div class="modal-overlay">
-      <div class="modal">
-        <h2>Espace ${ROLE_LABEL[role]}</h2>
-        <p class="modal-sub">Connexion de demonstration — aucune donnee reelle.</p>
-        <label for="login-name">${isClient ? "Votre prenom" : "Votre nom"}</label>
-        <input id="login-name" type="text" value="${isClient ? "Alex" : role === "manager" ? "Lea" : "Sophie"}" />
-        ${isClient ? `<label>Clients de demo</label><div class="chip-row" id="client-chips">${clients
-          .map((c) => `<button type="button" class="chip" data-name="${c.prenom}">${c.prenom}</button>`)
-          .join("")}</div>` : ""}
-        <button class="btn btn-primary btn-block" id="login-submit" style="margin-top:20px;">Entrer dans l'espace</button>
-        <button class="btn btn-ghost btn-block" id="login-cancel" style="margin-top:8px;">Retour</button>
-        <p class="error-msg" id="login-error"></p>
-      </div>
-    </div>
-  `);
-  const nameInput = overlay.querySelector("#login-name");
-  overlay.querySelectorAll("#client-chips .chip").forEach((chip) =>
-    chip.addEventListener("click", () => {
-      nameInput.value = chip.dataset.name;
-    })
-  );
-  overlay.querySelector("#login-cancel").addEventListener("click", () => overlay.remove());
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
-  overlay.querySelector("#login-submit").addEventListener("click", async () => {
-    const name = nameInput.value.trim();
-    if (!name) {
-      overlay.querySelector("#login-error").textContent = "Merci d'indiquer un nom.";
-      return;
-    }
-    try {
-      const data = await api.login(name, role);
-      setSession(data);
-      overlay.remove();
-      await enterApp(`${role}/${MODULES[role].nav[0].key}`);
-    } catch (err) {
-      overlay.querySelector("#login-error").textContent = err.message;
-    }
-  });
-  root.appendChild(overlay);
-  nameInput.focus();
 }
 
 // ---------- APP SHELL ----------
@@ -109,8 +90,16 @@ async function enterApp(hash) {
           <div class="logo"><span class="logo-mark">S</span> SmartWay</div>
         </div>
         <div class="right">
+          <div class="role-switch" id="role-switch">
+            ${Object.entries(ROLE_LABEL)
+              .map(
+                ([key, label]) =>
+                  `<button type="button" class="role-btn ${key} ${session.role === key ? "active" : ""}" data-role="${key}" title="Espace ${label}">${label}</button>`
+              )
+              .join("")}
+          </div>
           <span class="role-tag ${session.role}">${ROLE_LABEL[session.role]}</span>
-          <div class="user-chip"><span class="avatar">${initials}</span><span>${session.name}</span></div>
+          <div class="user-chip"><span class="avatar">${initials}</span><span class="user-name">${session.name}</span></div>
           <button class="btn btn-ghost btn-sm" id="logout-btn">Quitter</button>
         </div>
       </div>
@@ -128,6 +117,9 @@ async function enterApp(hash) {
   const menuBtn = shell.querySelector("#menu-btn");
   menuBtn.addEventListener("click", () => toggleSidebar(true));
   shell.querySelector("#logout-btn").addEventListener("click", logout);
+  shell.querySelectorAll("#role-switch [data-role]").forEach((btn) =>
+    btn.addEventListener("click", () => switchRole(btn.dataset.role))
+  );
 
   const ctx = {
     session,
@@ -216,14 +208,15 @@ async function logout() {
 }
 
 // ---------- ROUTING ----------
+window.addEventListener("smartway:unauthorized", () => renderLanding());
+
 window.addEventListener("hashchange", () => {
   const session = getSession();
   if (!session) return renderLanding();
   const hash = location.hash.replace(/^#/, "");
-  const role = hash.split("/")[0];
-  if (role !== session.role) {
-    // Re-render shell pour le bon role.
-    enterApp();
+  const hashRole = hash.split("/")[0];
+  if (hashRole && hashRole !== session.role && MODULES[hashRole]) {
+    switchRole(hashRole);
     return;
   }
   const appEl = root.querySelector(".app");

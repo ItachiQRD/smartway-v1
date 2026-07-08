@@ -32,8 +32,8 @@ async function request(method, url, body) {
   if (res.status === 401) {
     clearSession();
     location.hash = "";
-    location.reload();
-    return;
+    window.dispatchEvent(new CustomEvent("smartway:unauthorized"));
+    throw new Error("Session expiree — reconnectez-vous");
   }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
