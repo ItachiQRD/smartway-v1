@@ -1860,32 +1860,113 @@ canvas.store {
   }
 }
 
-/* Mode presentation guidee */
-.guide-overlay {
+/* Mode presentation guidee — panneau flottant, app entierement visible */
+.guide-progress-track {
   position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(6, 16, 31, 0.45);
-  backdrop-filter: blur(4px);
-  pointer-events: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 201;
+  background: rgba(14, 159, 110, 0.15);
+  pointer-events: none;
 }
-.guide-card {
-  width: min(520px, 100%);
-  background: #fff;
-  border-radius: 18px;
-  padding: 20px 22px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--border);
+.guide-progress-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--green), #14b8a6);
+  transition: width 0.45s ease;
+  box-shadow: 0 0 12px rgba(14, 159, 110, 0.5);
+}
+
+.guide-dock {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  width: min(360px, calc(100vw - 24px));
+  pointer-events: none;
+}
+.guide-dock-panel {
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(14px);
+  border-radius: 16px;
+  border: 1px solid rgba(14, 159, 110, 0.25);
+  box-shadow: 0 12px 40px rgba(6, 16, 31, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
   animation: guide-in 0.35s ease;
+  overflow: hidden;
 }
 @keyframes guide-in {
-  from { transform: translateY(16px); opacity: 0; }
+  from { transform: translateY(12px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+.guide-dock-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(14, 159, 110, 0.06), transparent);
+}
+.guide-dock-body {
+  padding: 14px 16px 16px;
+}
+.guide-dock-head .guide-step-count {
+  flex: 1;
+  padding-left: 4px;
+}
+.guide-icon-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.guide-icon-btn:hover {
+  background: #e8edf4;
+  color: var(--navy);
+}
+
+.guide-dock-mini {
+  display: none;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+.guide-dock-mini #guide-mini-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.guide-collapsed .guide-dock-body {
+  display: none;
+}
+body.guide-collapsed .guide-dock-head {
+  display: none;
+}
+body.guide-collapsed .guide-dock-mini {
+  display: flex;
+}
+body.guide-collapsed .guide-dock-panel {
+  border-radius: 999px;
+}
+
 .guide-top {
   display: flex;
   justify-content: space-between;
@@ -1893,48 +1974,51 @@ canvas.store {
   margin-bottom: 10px;
 }
 .guide-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   color: var(--green-700);
   background: var(--green-soft);
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 999px;
+  flex-shrink: 0;
 }
 .guide-step-count {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-dim);
+  font-weight: 600;
 }
 .guide-dots {
   display: flex;
-  gap: 6px;
-  margin-bottom: 12px;
+  gap: 5px;
+  margin-bottom: 10px;
 }
 .guide-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #dbe3ee;
   transition: background 0.2s, transform 0.2s;
 }
 .guide-dot.active {
   background: var(--green);
-  transform: scale(1.15);
+  transform: scale(1.2);
 }
 .guide-dot.done {
   background: #86efac;
 }
-.guide-card h2 {
-  font-size: 20px;
+.guide-dock-panel h2 {
+  font-size: 17px;
   color: var(--navy);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
 }
-.guide-card p {
-  font-size: 14px;
+.guide-dock-panel p {
+  font-size: 13px;
   color: var(--text-dim);
-  line-height: 1.55;
-  margin-bottom: 16px;
+  line-height: 1.5;
+  margin-bottom: 12px;
 }
 .guide-actions {
   display: flex;
@@ -1944,11 +2028,18 @@ canvas.store {
 .guide-launch {
   white-space: nowrap;
 }
-body.guide-running .appbar {
-  box-shadow: 0 0 0 2px rgba(14, 159, 110, 0.35);
+body.guide-running .content {
+  /* Laisse de la marge en bas pour ne pas masquer le contenu sous le dock */
+  padding-bottom: 8px;
 }
 @media (max-width: 720px) {
   .guide-launch {
     display: none;
+  }
+  .guide-dock {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+    width: auto;
   }
 }
