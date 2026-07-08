@@ -1294,6 +1294,19 @@ canvas.store {
   backdrop-filter: blur(12px);
   border-bottom-color: rgba(255, 255, 255, 0.08);
 }
+.lp-nav .right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lp-cta-guided {
+  color: #c8d8ef !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.lp-cta-guided:hover {
+  color: #fff !important;
+  border-color: rgba(14, 159, 110, 0.5) !important;
+}
 
 .lp-scene {
   max-width: 1180px;
@@ -1844,5 +1857,98 @@ canvas.store {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Mode presentation guidee */
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6, 16, 31, 0.45);
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+.guide-card {
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--border);
+  animation: guide-in 0.35s ease;
+}
+@keyframes guide-in {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.guide-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.guide-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--green-700);
+  background: var(--green-soft);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.guide-step-count {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.guide-dots {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.guide-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dbe3ee;
+  transition: background 0.2s, transform 0.2s;
+}
+.guide-dot.active {
+  background: var(--green);
+  transform: scale(1.15);
+}
+.guide-dot.done {
+  background: #86efac;
+}
+.guide-card h2 {
+  font-size: 20px;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+.guide-card p {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+.guide-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.guide-launch {
+  white-space: nowrap;
+}
+body.guide-running .appbar {
+  box-shadow: 0 0 0 2px rgba(14, 159, 110, 0.35);
+}
+@media (max-width: 720px) {
+  .guide-launch {
+    display: none;
   }
 }

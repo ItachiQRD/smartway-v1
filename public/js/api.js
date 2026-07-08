@@ -73,5 +73,20 @@ export const api = {
   managerDashboard: () => request("GET", "/api/manager/dashboard"),
   managerRayons: () => request("GET", "/api/manager/rayons"),
   managerHeatmap: () => request("GET", "/api/manager/heatmap"),
-  managerAlerts: () => request("GET", "/api/manager/alerts"),
+  demoReset: () => request("POST", "/api/demo/reset"),
+
+  subscribeEvents(onEvent) {
+    const session = getSession();
+    if (!session?.token) return () => {};
+    const es = new EventSource(`/api/events?token=${encodeURIComponent(session.token)}`);
+    es.onmessage = (e) => {
+      try {
+        onEvent(JSON.parse(e.data));
+      } catch {
+        /* ignore */
+      }
+    };
+    es.onerror = () => es.close();
+    return () => es.close();
+  },
 };

@@ -34,7 +34,7 @@ function checkoutRects() {
   return r;
 }
 
-export function mountLanding(root, { onSelectRole, onStartDemo }) {
+export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided }) {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const view = h(`
@@ -45,6 +45,7 @@ export function mountLanding(root, { onSelectRole, onStartDemo }) {
       <nav class="lp-nav" id="lp-nav">
         <div class="logo"><span class="logo-mark">S</span> SmartWay</div>
         <button class="btn btn-primary btn-sm" id="lp-cta-top">Essayer la demo</button>
+        <button class="btn btn-ghost btn-sm lp-cta-guided" id="lp-cta-guided">▶ Presentation guidee</button>
       </nav>
 
       <!-- HERO -->
@@ -143,6 +144,7 @@ export function mountLanding(root, { onSelectRole, onStartDemo }) {
     c.addEventListener("click", () => onSelectRole(c.dataset.role))
   );
   view.querySelector("#lp-cta-top").addEventListener("click", () => onStartDemo?.());
+  view.querySelector("#lp-cta-guided").addEventListener("click", () => onStartGuided?.());
   view.querySelector("#lp-hint").addEventListener("click", () =>
     view.querySelector("#lp-circuit").scrollIntoView({ behavior: "smooth" })
   );

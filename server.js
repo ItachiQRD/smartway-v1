@@ -6,6 +6,7 @@ import crypto from "node:crypto";
 import { buildStore } from "./src/storeData.js";
 import { planRoute } from "./src/pathfinding.js";
 import { createSimulation } from "./src/simulation.js";
+import { initPersistence, schedulePersist, persistNow, resetMutableState } from "./src/persist.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -15,11 +16,35 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 const store = buildStore();
+initPersistence(store);
 const sim = createSimulation(store);
 const ROLES = ["client", "collaborateur", "manager"];
 const AUTH_SECRET = process.env.SMARTWAY_AUTH_SECRET || "smartway-demo-v1";
+const sseClients = new Set();
 
-setInterval(() => sim.tick(), 2000);
+function touchStore(area = "state") {
+  schedulePersist(store);
+  broadcastEvent("state", { area });
+}
+
+function broadcastEvent(type, data = {}) {
+  const msg = `data: ${JSON.stringify({ type, t: Date.now(), ...data })}\n\n`;
+  for (const res of sseClients) {
+    try {
+      res.write(msg);
+    } catch {
+      sseClients.delete(res);
+    }
+  }
+}
+
+setInterval(() => {
+  sim.tick();
+  broadcastEvent("tick");
+}, 2000);
+
+// Sauvegarde periodique de secours.
+setInterval(() => persistNow(store), 30000);
 
 // Jeton signe sans etat serveur (compatible Vercel / serverless).
 function signToken(name, role) {
@@ -82,6 +107,41 @@ app.post("/api/login", (req, res) => {
 });
 
 app.post("/api/logout", (_req, res) => {
+  res.json({ ok: true });
+});
+
+// Flux temps reel (rafraichissement staff / manager sans polling agressif).
+app.get("/api/events", (req, res) => {
+  const token = (req.query.token || "").toString() || (req.headers.authorization || "").replace("Bearer ", "");
+  const session = parseToken(token);
+  if (!session) return res.status(401).end();
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders?.();
+  sseClients.add(res);
+  res.write(`data: ${JSON.stringify({ type: "connected", role: session.role })}\n\n`);
+
+  const keepAlive = setInterval(() => {
+    try {
+      res.write(`: ping\n\n`);
+    } catch {
+      clearInterval(keepAlive);
+      sseClients.delete(res);
+    }
+  }, 25000);
+
+  req.on("close", () => {
+    clearInterval(keepAlive);
+    sseClients.delete(res);
+  });
+});
+
+// Reinitialise l'etat mutable de la demo (utile avant une presentation).
+app.post("/api/demo/reset", auth(), (_req, res) => {
+  resetMutableState(store);
+  broadcastEvent("reset");
   res.json({ ok: true });
 });
 
@@ -172,6 +232,7 @@ app.post("/api/help", auth("client"), (req, res) => {
     updatedAt: now,
   };
   store.helpRequests.unshift(reqObj);
+  touchStore("help");
   res.json(reqObj);
 });
 
@@ -190,6 +251,7 @@ app.post("/api/help/:id/status", auth("collaborateur"), (req, res) => {
   if (status && valid.includes(status)) h.status = status;
   if (comment != null) h.comment = comment.toString().slice(0, 300);
   h.updatedAt = Date.now();
+  touchStore("help");
   res.json(h);
 });
 
@@ -245,6 +307,7 @@ app.post("/api/stock/:id/restock", auth("collaborateur"), (req, res) => {
   if (!p) return res.status(404).json({ error: "Produit introuvable" });
   const qty = Number(req.body?.quantity) || p.capacity - p.stock;
   p.stock = Math.min(p.capacity, p.stock + Math.max(0, qty));
+  touchStore("stock");
   res.json({ id: p.id, stock: p.stock, status: sim.stockStatus(p) });
 });
 
@@ -268,6 +331,7 @@ app.post("/api/tasks", auth("collaborateur"), (req, res) => {
     createdAt: Date.now(),
   };
   store.tasks.unshift(task);
+  touchStore("tasks");
   res.json(task);
 });
 
@@ -278,6 +342,7 @@ app.post("/api/tasks/:id/complete", auth("collaborateur"), (req, res) => {
   // Reassort automatique du produit lie.
   const p = store.products.find((x) => x.id === t.productId);
   if (p) p.stock = p.capacity;
+  touchStore("tasks");
   res.json(t);
 });
 

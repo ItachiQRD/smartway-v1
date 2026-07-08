@@ -61,7 +61,13 @@ async function renderDashboard(body, ctx) {
   }
   await load();
   const timer = setInterval(load, 2500);
-  return () => clearInterval(timer);
+  const unsub = api.subscribeEvents((ev) => {
+    if (ev.type === "tick" || ev.type === "reset") load();
+  });
+  return () => {
+    clearInterval(timer);
+    unsub();
+  };
 }
 
 // ---------- PERFORMANCE RAYONS ----------
@@ -140,7 +146,13 @@ async function renderHeatmap(body, ctx) {
   }
   await load();
   const timer = setInterval(load, 3000);
-  return () => clearInterval(timer);
+  const unsub = api.subscribeEvents((ev) => {
+    if (ev.type === "tick" || ev.type === "reset") load();
+  });
+  return () => {
+    clearInterval(timer);
+    unsub();
+  };
 }
 
 // ---------- ALERTES OPERATIONNELLES ----------
@@ -172,7 +184,13 @@ async function renderAlertes(body, ctx) {
   }
   await load();
   const timer = setInterval(load, 4000);
-  return () => clearInterval(timer);
+  const unsub = api.subscribeEvents((ev) => {
+    if (ev.type === "state" || ev.type === "tick" || ev.type === "reset") load();
+  });
+  return () => {
+    clearInterval(timer);
+    unsub();
+  };
 }
 
 // ---------- CHARTS ----------

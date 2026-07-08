@@ -13,6 +13,9 @@ import {
   setQty,
   removeFromCart,
   replaceInCart,
+  setRoute,
+  markRouteProgress,
+  clearClientState,
 } from "./state.js";
 import { drawStore } from "./map.js";
 
@@ -262,8 +265,7 @@ async function launchRoute(ctx) {
   }
   try {
     const route = await api.route(items.map((i) => i.product.id));
-    state.route = route;
-    state.routeProgress = new Set();
+    setRoute(route);
     ctx.navigate("parcours");
   } catch (err) {
     toast(err.message);
@@ -333,8 +335,8 @@ async function renderParcours(body, ctx) {
       <button class="btn btn-ghost btn-block" id="help" style="margin-top:8px">🆘 Demander de l'aide</button>
       ${!current ? `<button class="btn btn-primary btn-block" id="to-caisses" style="margin-top:8px">💳 Voir les caisses</button>` : ""}`;
 
-    progressCard.querySelector("#found")?.addEventListener("click", () => { if (current) { state.routeProgress.add(current.id); redraw(); } });
-    progressCard.querySelector("#skip")?.addEventListener("click", () => { if (current) { state.routeProgress.add(current.id); toast(`${current.name} passe`); redraw(); } });
+    progressCard.querySelector("#found")?.addEventListener("click", () => { if (current) { markRouteProgress(current.id); redraw(); } });
+    progressCard.querySelector("#skip")?.addEventListener("click", () => { if (current) { markRouteProgress(current.id); toast(`${current.name} passe`); redraw(); } });
     progressCard.querySelector("#help")?.addEventListener("click", () => {
       if (current) state.helpProductId = current.id;
       ctx.navigate("aide");
@@ -416,9 +418,7 @@ async function renderCaisses(body, ctx) {
   bindActions(body, ctx);
   body.querySelector("#finish").addEventListener("click", () => {
     toast("🎉 Parcours finalise. Merci d'avoir utilise SmartWay !");
-    state.cart.clear();
-    state.route = null;
-    state.routeProgress = new Set();
+    clearClientState();
     ctx.refreshNav();
     ctx.navigate("home");
   });

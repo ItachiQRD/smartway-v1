@@ -25,7 +25,9 @@ Puis ouvrir http://localhost:3000 (développement : `npm run dev`).
 
 ## Scénario de démonstration (< 10 min)
 
-1. **Landing** → choisir **Client** (prénom de démo : Alex, Julie...).
+**Mode rapide — Présentation guidée (~90 s)** : bouton **« ▶ Présentation guidée »** sur la landing ou **« ▶ Présentation »** dans l'app. Enchaîne automatiquement Client → Collaborateur → Manager (liste, parcours, demande d'aide, traitement, heatmap).
+
+**Exploration libre** :
 2. Ajouter des produits (promotions ou recherche), puis **Lancer mon parcours** : le plan affiche l'itinéraire numéroté, le temps restant et le prochain rayon. Cliquer **Produit trouvé** pour avancer, puis **Voir les caisses** → caisse recommandée + **Scan & Go**.
 3. Depuis le parcours, **Demander de l'aide** sur un produit (statut « Envoyée »).
 4. Se déconnecter → entrer en **Collaborateur** : la demande apparaît dans *Demandes clients* ; l'accepter, la passer *En cours*, la **clôturer**. Gérer *Stocks & réassorts* et *Tâches*.
@@ -76,7 +78,8 @@ public/
 | GET | `/api/manager/dashboard` | manager | KPIs temps réel + suivi demandes |
 | GET | `/api/manager/rayons` | manager | Performance des rayons |
 | GET | `/api/manager/heatmap` | manager | Zones chaudes/froides/congestion + reco |
-| GET | `/api/manager/alerts` | manager | Alertes opérationnelles priorisées |
+| GET | `/api/events?token=` | tous | Flux temps réel (SSE) |
+| POST | `/api/demo/reset` | tous | Réinitialise l'état mutable de la démo |
 
 ## Hors périmètre V1 (simulé visuellement)
 
@@ -84,4 +87,6 @@ Paiement réel, connexion réelle caisses/stocks, géolocalisation indoor, IA av
 
 ## Pistes V2
 
-Persistance en base de données, authentification sécurisée (mots de passe / JWT), localisation indoor réelle, optimisation TSP (2-opt), notifications, historique multi-jours, export CSV/PDF.
+Persistance cloud (Supabase), authentification sécurisée, localisation indoor réelle, optimisation TSP (2-opt), notifications push, historique multi-jours, export CSV/PDF.
+
+> **V1.5** : état serveur sauvegardé localement (`data/demo-state.json`) ou sur `/tmp` (Vercel), panier client en `localStorage`, flux SSE pour rafraîchissement live.

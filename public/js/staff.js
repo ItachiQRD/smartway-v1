@@ -61,7 +61,13 @@ async function renderDashboard(body, ctx) {
   }
   await load();
   const timer = setInterval(load, 5000);
-  return () => clearInterval(timer);
+  const unsub = api.subscribeEvents((ev) => {
+    if (ev.type === "state" || ev.type === "reset") load();
+  });
+  return () => {
+    clearInterval(timer);
+    unsub();
+  };
 }
 
 // ---------- DEMANDES CLIENTS ----------
@@ -111,7 +117,13 @@ async function renderDemandes(body, ctx) {
   }
   await load();
   const timer = setInterval(load, 5000);
-  return () => clearInterval(timer);
+  const unsub = api.subscribeEvents((ev) => {
+    if (ev.type === "state" || ev.type === "reset") load();
+  });
+  return () => {
+    clearInterval(timer);
+    unsub();
+  };
 }
 
 // ---------- STOCKS & REASSORTS ----------
@@ -159,7 +171,13 @@ async function renderStocks(body, ctx) {
   }
   await load();
   const timer = setInterval(load, 6000);
-  return () => clearInterval(timer);
+  const unsub = api.subscribeEvents((ev) => {
+    if (ev.type === "state" || ev.type === "reset") load();
+  });
+  return () => {
+    clearInterval(timer);
+    unsub();
+  };
 }
 
 // ---------- TACHES ----------
@@ -195,7 +213,13 @@ async function renderTaches(body, ctx) {
   }
   await load();
   const timer = setInterval(load, 6000);
-  return () => clearInterval(timer);
+  const unsub = api.subscribeEvents((ev) => {
+    if (ev.type === "state" || ev.type === "reset") load();
+  });
+  return () => {
+    clearInterval(timer);
+    unsub();
+  };
 }
 
 // ---------- ALERTES ----------
@@ -226,8 +250,14 @@ async function renderAlertes(body, ctx) {
     body.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => ctx.navigate(b.dataset.go)));
   }
   await load();
-  const timer = setInterval(load, 5000);
-  return () => clearInterval(timer);
+  const timer = setInterval(load, 4000);
+  const unsub = api.subscribeEvents((ev) => {
+    if (ev.type === "state" || ev.type === "reset") load();
+  });
+  return () => {
+    clearInterval(timer);
+    unsub();
+  };
 }
 
 export const staffModule = {

@@ -2,11 +2,12 @@
 
 import { api, getSession, setSession, clearSession } from "./api.js";
 import { h, toast } from "./ui.js";
-import { state } from "./state.js";
+import { state, loadClientState, clearClientState } from "./state.js";
 import { clientModule } from "./client.js";
 import { staffModule } from "./staff.js";
 import { managerModule } from "./manager.js";
 import { mountLanding } from "./landing.js";
+import { createGuidedDemo } from "./demoGuide.js";
 
 const root = document.getElementById("root");
 const MODULES = {
@@ -18,6 +19,24 @@ const ROLE_LABEL = { client: "Client", collaborateur: "Collaborateur", manager: 
 const DEMO_USERS = { client: "Alex", collaborateur: "Sophie", manager: "Lea" };
 
 let pageCleanup = () => {};
+let appShell = null;
+let appCtx = null;
+
+const guidedDemo = createGuidedDemo({
+  ensureRole: async (role) => {
+    const session = getSession();
+    if (!session) await quickEnter(role);
+    else if (session.role !== role) await switchRole(role);
+  },
+  switchRole,
+  navigate: (key) => {
+    const session = getSession();
+    if (session) location.hash = `${session.role}/${key}`;
+  },
+  refreshNav: () => appCtx?.refreshNav(),
+  refreshPage: () => appShell?._renderPage?.(),
+  onEnd: () => document.body.classList.remove("guide-running"),
+});
 
 // Connexion demo en 1 clic (sans modal).
 async function quickEnter(role) {
@@ -49,6 +68,12 @@ async function switchRole(role) {
   }
 }
 
+async function startGuidedFromLanding() {
+  pageCleanup();
+  await quickEnter("client");
+  await guidedDemo.start();
+}
+
 // ---------- LANDING ----------
 function renderLanding() {
   pageCleanup();
@@ -58,6 +83,7 @@ function renderLanding() {
   const cleanup = mountLanding(root, {
     onSelectRole: quickEnter,
     onStartDemo: () => quickEnter("client"),
+    onStartGuided: startGuidedFromLanding,
   });
   pageCleanup = cleanup || (() => {});
 }
@@ -68,7 +94,6 @@ async function enterApp(hash) {
   const session = getSession();
   if (!session) return renderLanding();
 
-  // Nettoie les ecouteurs de la landing (scroll/resize) avant d'entrer.
   pageCleanup();
   pageCleanup = () => {};
   document.body.classList.add("in-app");
@@ -90,6 +115,7 @@ async function enterApp(hash) {
           <div class="logo"><span class="logo-mark">S</span> SmartWay</div>
         </div>
         <div class="right">
+          <button class="btn btn-secondary btn-sm guide-launch" id="guide-btn" type="button">▶ Presentation</button>
           <div class="role-switch" id="role-switch">
             ${Object.entries(ROLE_LABEL)
               .map(
@@ -110,6 +136,7 @@ async function enterApp(hash) {
     </div>
   `);
   root.appendChild(shell);
+  appShell = shell;
 
   const sidebar = shell.querySelector("#sidebar");
   const content = shell.querySelector("#content");
@@ -117,6 +144,7 @@ async function enterApp(hash) {
   const menuBtn = shell.querySelector("#menu-btn");
   menuBtn.addEventListener("click", () => toggleSidebar(true));
   shell.querySelector("#logout-btn").addEventListener("click", logout);
+  shell.querySelector("#guide-btn").addEventListener("click", () => guidedDemo.start());
   shell.querySelectorAll("#role-switch [data-role]").forEach((btn) =>
     btn.addEventListener("click", () => switchRole(btn.dataset.role))
   );
@@ -133,6 +161,7 @@ async function enterApp(hash) {
     },
     toast,
   };
+  appCtx = ctx;
 
   function toggleSidebar(open) {
     if (window.innerWidth > 860) return;
@@ -195,14 +224,15 @@ function currentPageKey(role) {
 }
 
 async function logout() {
+  guidedDemo.stop(true);
   try {
     await api.logout();
   } catch (_) {}
   clearSession();
   state.bootstrap = null;
-  state.cart.clear();
-  state.route = null;
-  state.routeProgress.clear();
+  clearClientState();
+  appShell = null;
+  appCtx = null;
   location.hash = "";
   renderLanding();
 }
@@ -225,6 +255,7 @@ window.addEventListener("hashchange", () => {
 });
 
 // ---------- BOOT ----------
+loadClientState();
 (async () => {
   const session = getSession();
   if (session) await enterApp();

@@ -7,3 +7,4 @@ node_modules/
 Thumbs.db
 *.log
 npm-debug.log*
+data/demo-state.json
