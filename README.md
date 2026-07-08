@@ -28,10 +28,12 @@ Puis ouvrir http://localhost:3000 (développement : `npm run dev`).
 **Mode rapide — Présentation guidée (~90 s)** : bouton **« ▶ Présentation guidée »** sur la landing ou **« ▶ Présentation »** dans l'app. Enchaîne automatiquement Client → Collaborateur → Manager (liste, parcours, demande d'aide, traitement, heatmap).
 
 **Exploration libre** :
+
+1. **Landing** → choisir **Client**, **Collaborateur** ou **Manager** (connexion automatique).
 2. Ajouter des produits (promotions ou recherche), puis **Lancer mon parcours** : le plan affiche l'itinéraire numéroté, le temps restant et le prochain rayon. Cliquer **Produit trouvé** pour avancer, puis **Voir les caisses** → caisse recommandée + **Scan & Go**.
 3. Depuis le parcours, **Demander de l'aide** sur un produit (statut « Envoyée »).
-4. Se déconnecter → entrer en **Collaborateur** : la demande apparaît dans *Demandes clients* ; l'accepter, la passer *En cours*, la **clôturer**. Gérer *Stocks & réassorts* et *Tâches*.
-5. Entrer en **Manager** : tableau de bord temps réel (visiteurs, panier moyen, satisfaction, CA), *Performance rayons*, *Heatmap des flux*, *Alertes opérationnelles*.
+4. Basculer en **Collaborateur** (boutons en haut) : la demande apparaît dans *Demandes clients* ; l'accepter, la passer *En cours*, la **clôturer**. Gérer *Stocks & réassorts* et *Tâches*.
+5. Basculer en **Manager** : tableau de bord temps réel (visiteurs, panier moyen, satisfaction, CA), *Performance rayons*, *Heatmap des flux*, *Alertes opérationnelles*.
 
 ## Données simulées
 
