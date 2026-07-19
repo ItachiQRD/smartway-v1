@@ -9,11 +9,13 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const smooth = (t) => t * t * (3 - 2 * t);
 
-// Palette sobre : navy profond → vert premium (lisibilite du texte au premier plan).
+// Palette par etapes de scroll : bleu nuit constant, accents discrets qui
+// glissent du bleu froid vers l'emeraude. Volontairement sombre pour que
+// le texte blanc reste toujours lisible.
 const PALETTE = [
-  { top: [8, 16, 28], mid: [12, 26, 40], bot: [10, 20, 32], accent: [120, 160, 180], glow: [14, 159, 110] },
-  { top: [8, 20, 30], mid: [12, 32, 40], bot: [10, 24, 34], accent: [100, 170, 160], glow: [16, 170, 120] },
-  { top: [8, 22, 26], mid: [12, 36, 34], bot: [10, 26, 28], accent: [90, 180, 140], glow: [18, 175, 120] },
+  { top: [6, 13, 26], mid: [10, 22, 40], bot: [6, 14, 27], accent: [125, 160, 210], glow: [15, 118, 96] },
+  { top: [5, 14, 28], mid: [10, 26, 44], bot: [6, 16, 29], accent: [100, 190, 185], glow: [13, 135, 105] },
+  { top: [4, 16, 28], mid: [9, 30, 43], bot: [5, 18, 28], accent: [110, 210, 175], glow: [16, 150, 112] },
 ];
 
 function mixColor(c1, c2, t) {
@@ -127,8 +129,8 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
   function drawOrbs(pal, p, time) {
     ctx.globalCompositeOperation = "lighter";
     const orbs = [
-      { x: lerp(0.85, 0.15, p) * W, y: lerp(0.08, 0.55, p) * H + Math.sin(time * 0.4) * 14, r: W * 0.38, c: pal.glow, a: 0.08 },
-      { x: lerp(0.08, 0.9, p) * W, y: lerp(0.9, 0.25, p) * H + Math.cos(time * 0.33) * 16, r: W * 0.32, c: pal.accent, a: 0.05 },
+      { x: lerp(0.85, 0.15, p) * W, y: lerp(0.08, 0.55, p) * H + Math.sin(time * 0.4) * 14, r: W * 0.38, c: pal.glow, a: 0.09 },
+      { x: lerp(0.08, 0.9, p) * W, y: lerp(0.9, 0.25, p) * H + Math.cos(time * 0.33) * 16, r: W * 0.32, c: pal.accent, a: 0.06 },
     ];
     for (const o of orbs) {
       const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r);
@@ -154,7 +156,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
       const y = horizon + (H - horizon) / z;
       if (y > H + 40 || y < horizon) continue;
       const fade = clamp(1 - z / rows);
-      ctx.strokeStyle = rgba(pal.accent, 0.015 + fade * 0.04);
+      ctx.strokeStyle = rgba(pal.accent, 0.018 + fade * 0.045);
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(W, y);
@@ -164,7 +166,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
     const cols = 9;
     for (let j = -cols; j <= cols; j++) {
       const xB = vpX + (j / cols) * W * 1.25;
-      ctx.strokeStyle = rgba(pal.accent, 0.028);
+      ctx.strokeStyle = rgba(pal.accent, 0.03);
       ctx.beginPath();
       ctx.moveTo(lerp(vpX, xB, 0.04), horizon + 1);
       ctx.lineTo(xB, H);
@@ -174,7 +176,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
     // Lueur d'horizon qui s'intensifie avec la progression.
     const hg = ctx.createLinearGradient(0, horizon - 60, 0, horizon + 90);
     hg.addColorStop(0, rgba(pal.glow, 0));
-    hg.addColorStop(0.5, rgba(pal.glow, 0.05 + p * 0.09));
+    hg.addColorStop(0.5, rgba(pal.glow, 0.03 + p * 0.05));
     hg.addColorStop(1, rgba(pal.glow, 0));
     ctx.fillStyle = hg;
     ctx.fillRect(0, horizon - 60, W, 150);
@@ -186,7 +188,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
       const y = (((pt.y - p * pt.depth * 0.6 + Math.sin(time * 0.12 + pt.tw) * 0.012) % 1) + 1) % 1;
       const x = (((pt.x + Math.cos(time * 0.09 + pt.tw) * 0.008) % 1) + 1) % 1;
       const twinkle = 0.35 + 0.3 * Math.sin(time * 0.8 + pt.tw);
-      ctx.fillStyle = rgba(pal.accent, twinkle * pt.depth * 0.28);
+      ctx.fillStyle = rgba(pal.accent, twinkle * pt.depth * 0.32);
       ctx.beginPath();
       ctx.arc(x * W, y * H, pt.r * pt.depth, 0, TAU);
       ctx.fill();
@@ -203,10 +205,10 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
     ctx.lineCap = "round";
 
     for (const pass of [
-      { width: th.width * 3.2, alpha: 0.05 },
-      { width: th.width * 0.9, alpha: 0.35 },
+      { width: th.width * 4.5, alpha: 0.05 },
+      { width: th.width, alpha: 0.28 },
     ]) {
-      ctx.strokeStyle = rgba(pal.glow, pass.alpha * (0.35 + local * 0.45));
+      ctx.strokeStyle = rgba(pal.glow, pass.alpha * (0.4 + local * 0.6));
       ctx.lineWidth = pass.width;
       ctx.beginPath();
       ctx.moveTo(th.pts[0][0], th.pts[0][1]);
@@ -232,13 +234,13 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
     if (local < 1 && th._head) {
       const [hx, hy] = th._head;
       ctx.globalCompositeOperation = "lighter";
-      const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, 26);
-      g.addColorStop(0, rgba(pal.glow, 0.8));
+      const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, 22);
+      g.addColorStop(0, rgba(pal.glow, 0.45));
       g.addColorStop(1, rgba(pal.glow, 0));
       ctx.fillStyle = g;
-      ctx.fillRect(hx - 26, hy - 26, 52, 52);
+      ctx.fillRect(hx - 22, hy - 22, 44, 44);
       ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "#eafff5";
+      ctx.fillStyle = "rgba(220,245,235,0.85)";
       ctx.beginPath();
       ctx.arc(hx, hy, th.width + 1, 0, TAU);
       ctx.fill();
@@ -246,9 +248,10 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
   }
 
   function drawVignette() {
-    const g = ctx.createRadialGradient(W / 2, H * 0.45, Math.min(W, H) * 0.35, W / 2, H * 0.5, Math.max(W, H) * 0.75);
-    g.addColorStop(0, "rgba(0,0,0,0)");
-    g.addColorStop(1, "rgba(2,8,16,0.55)");
+    // Vignette peripherique + assombrissement du centre : le texte passe devant.
+    const g = ctx.createRadialGradient(W / 2, H * 0.45, Math.min(W, H) * 0.3, W / 2, H * 0.5, Math.max(W, H) * 0.75);
+    g.addColorStop(0, "rgba(2,8,16,0.12)");
+    g.addColorStop(1, "rgba(2,8,16,0.65)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
   }

@@ -1,5 +1,6 @@
-// SmartWay - Landing immersive "scroll-telling" :
-// hero epingle, sections revelées, circuit dans un mockup telephone.
+// SmartWay - Landing immersive "scroll-telling" (inspiration GTA VI) :
+// hero epingle anime au scroll, sections revelees, et apercu du circuit
+// dans un mockup de telephone ou le parcours se trace au fil du scroll.
 
 import { h } from "./ui.js";
 import { createScrollBackground } from "./landingBg.js";
@@ -40,89 +41,63 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
   const view = h(`
     <div class="lp">
       <div class="lp-progress" id="lp-progress"></div>
-      <div class="lp-bg" aria-hidden="true">
-        <div class="lp-photo lp-photo-1"></div>
-        <div class="lp-photo lp-photo-2"></div>
-        <div class="lp-photo lp-photo-3"></div>
+      <div class="lp-bg">
         <canvas class="lp-bg-canvas" id="lp-bg-canvas"></canvas>
-        <div class="lp-scrim"></div>
+        <img class="lp-bg-photo" src="img/lp-bg.jpg" alt="" aria-hidden="true" onerror="this.remove()" />
       </div>
 
       <nav class="lp-nav" id="lp-nav">
         <div class="logo"><span class="logo-mark">S</span> SmartWay</div>
-        <div class="lp-nav-actions">
-          <button class="btn btn-ghost btn-sm lp-cta-guided" id="lp-cta-guided" type="button">Presentation</button>
-          <button class="btn btn-primary btn-sm" id="lp-cta-top" type="button">Essayer la demo</button>
-        </div>
+        <button class="btn btn-primary btn-sm" id="lp-cta-top">Essayer la demo</button>
+        <button class="btn btn-ghost btn-sm lp-cta-guided" id="lp-cta-guided">▶ Presentation guidee</button>
       </nav>
 
+      <!-- HERO -->
       <section class="lp-scene lp-hero-scene">
         <div class="lp-hero" id="lp-hero">
           <div class="lp-hero-inner">
-            <h1 class="lp-title">Smart<span class="lp-title-accent">Way</span></h1>
+            <span class="lp-eyebrow">RetailTech · Experience V1</span>
+            <h1 class="lp-title">SMART<span class="lp-title-accent">WAY</span></h1>
             <p class="lp-tagline">Le magasin intelligent, pour tous ses acteurs.</p>
-            <p class="lp-slogan">Chaque pas compte.</p>
+            <p class="lp-slogan">« Chaque pas compte. »</p>
             <div class="lp-hero-profiles">
-              <button class="lp-prof" data-role="client" type="button">
-                <span class="lp-prof-label">Client</span>
-                <span class="lp-prof-desc">Gagner du temps</span>
-              </button>
-              <button class="lp-prof" data-role="collaborateur" type="button">
-                <span class="lp-prof-label">Collaborateur</span>
-                <span class="lp-prof-desc">Gagner en efficacite</span>
-              </button>
-              <button class="lp-prof" data-role="manager" type="button">
-                <span class="lp-prof-label">Manager</span>
-                <span class="lp-prof-desc">Piloter le magasin</span>
-              </button>
+              <button class="lp-prof client" data-role="client"><span class="lp-prof-ico">🛒</span><b>Client</b><small>Gagner du temps</small></button>
+              <button class="lp-prof collaborateur" data-role="collaborateur"><span class="lp-prof-ico">📦</span><b>Collaborateur</b><small>Gagner en efficacite</small></button>
+              <button class="lp-prof manager" data-role="manager"><span class="lp-prof-ico">📈</span><b>Manager</b><small>Piloter le magasin</small></button>
             </div>
           </div>
-          <button class="lp-scroll-hint" id="lp-hint" type="button" aria-label="Defiler vers le bas">
+          <button class="lp-scroll-hint" id="lp-hint" aria-label="Defiler vers le bas">
             <span class="lp-mouse"><span class="lp-wheel"></span></span>
-            <span class="lp-hint-txt">Decouvrir</span>
+            <span class="lp-hint-txt">Decouvrir l'experience</span>
           </button>
         </div>
       </section>
 
+      <!-- STATEMENTS -->
       <section class="lp-scene lp-statements">
-        <div class="lp-statement reveal">
-          <span class="lp-stat-num">−30%</span>
-          <h2>de temps perdu en magasin</h2>
-          <p>Le bon produit, le bon chemin, la bonne caisse — sans hesiter.</p>
-        </div>
-        <div class="lp-statement reveal" data-align="right">
-          <span class="lp-stat-num">+1</span>
-          <h2>collaborateur augmente</h2>
-          <p>Demandes clients, ruptures et reassorts priorises en temps reel.</p>
-        </div>
-        <div class="lp-statement reveal">
-          <span class="lp-stat-num">360°</span>
-          <h2>de vision pour le manager</h2>
-          <p>Frequentation, performance des rayons et heatmap des flux.</p>
-        </div>
+        <div class="lp-statement reveal"><span class="lp-stat-num">−30%</span><h2>de temps perdu en magasin</h2><p>Le bon produit, le bon chemin, la bonne caisse — sans hesiter.</p></div>
+        <div class="lp-statement reveal" data-align="right"><span class="lp-stat-num">+1</span><h2>collaborateur augmente</h2><p>Demandes clients, ruptures et reassorts priorises en temps reel.</p></div>
+        <div class="lp-statement reveal"><span class="lp-stat-num">360°</span><h2>de vision pour le manager</h2><p>Frequentation, performance des rayons et heatmap des flux.</p></div>
       </section>
 
+      <!-- CIRCUIT (pinned, route drawn on scroll) -->
       <section class="lp-scene lp-circuit" id="lp-circuit">
         <div class="lp-circuit-stage">
           <div class="lp-circuit-copy">
-            <p class="lp-kicker">Le parcours</p>
-            <h2>Suivez le chemin le plus court.</h2>
+            <span class="lp-eyebrow">Le circuit, dans votre poche</span>
+            <h2>Suivez le <span class="lp-title-accent">chemin le plus court</span>.</h2>
             <p>Votre liste devient un parcours optimise. SmartWay trace l'itineraire, arret par arret, jusqu'a la caisse la plus rapide.</p>
             <div class="lp-circuit-kpis">
               <div><b id="lp-eta">12</b><span>min estimees</span></div>
               <div><b id="lp-count">0/5</b><span>arrets</span></div>
-              <div><b id="lp-dist">320</b><span>metres</span></div>
+              <div><b id="lp-dist">320</b><span>m</span></div>
             </div>
           </div>
 
           <div class="lp-phone">
             <div class="lp-phone-notch"></div>
             <div class="lp-phone-screen">
-              <div class="lp-app-bar">
-                <span class="logo-mark sm">S</span>
-                <div><b>Mon parcours</b><small id="lp-next">Direction Fruits &amp; Legumes</small></div>
-                <span class="lp-app-eta" id="lp-app-eta">12 min</span>
-              </div>
+              <div class="lp-app-bar"><span class="logo-mark sm">S</span><div><b>Mon parcours</b><small id="lp-next">Direction Fruits &amp; Legumes</small></div><span class="lp-app-eta" id="lp-app-eta">12 min</span></div>
               <svg class="lp-map" viewBox="0 0 340 660" preserveAspectRatio="xMidYMid meet">
                 <rect x="0" y="0" width="340" height="660" rx="18" class="lp-floor"/>
                 ${shelfRects()}
@@ -143,51 +118,32 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
         </div>
       </section>
 
+      <!-- PILIERS -->
       <section class="lp-scene lp-pillars">
-        <h2 class="lp-section-title reveal">Trois espaces. Une meme plateforme.</h2>
-        <p class="lp-section-sub reveal">Chaque profil voit exactement ce dont il a besoin pour agir.</p>
+        <h2 class="lp-section-title reveal">Une seule application, trois superpouvoirs.</h2>
         <div class="lp-pillar-grid">
-          <div class="lp-pillar reveal">
-            <h3>Client</h3>
-            <p>Liste de courses, parcours optimise, caisse recommandee et demande d'aide.</p>
-          </div>
-          <div class="lp-pillar reveal">
-            <h3>Collaborateur</h3>
-            <p>Demandes clients, alertes stock et taches de reassort priorisees.</p>
-          </div>
-          <div class="lp-pillar reveal">
-            <h3>Manager</h3>
-            <p>KPIs temps reel, performance des rayons, heatmap et alertes operationnelles.</p>
-          </div>
+          <div class="lp-pillar reveal client"><div class="p-icon">🛒</div><h3>Client</h3><p>Liste de courses, parcours optimise, caisse la plus rapide, Scan &amp; Go et demande d'aide.</p></div>
+          <div class="lp-pillar reveal collaborateur"><div class="p-icon">📦</div><h3>Collaborateur</h3><p>Demandes clients, alertes stock et taches de reassort priorisees.</p></div>
+          <div class="lp-pillar reveal manager"><div class="p-icon">📈</div><h3>Manager</h3><p>KPIs temps reel, performance des rayons, heatmap des flux et alertes.</p></div>
         </div>
       </section>
 
-      <section class="lp-scene lp-final" id="profiles">
+      <!-- CTA / PROFILS -->
+      <section class="lp-scene profiles lp-final" id="profiles">
         <h2 class="reveal">Entrez dans la demonstration</h2>
-        <p class="sub reveal">Choisissez un profil pour explorer SmartWay.</p>
+        <p class="sub reveal">Choisissez votre profil pour acceder a votre espace.</p>
         <div class="profile-grid">
-          <button class="profile-card reveal" data-role="client" type="button">
-            <h3>Client</h3>
-            <p>Je prepare ma liste, je lance mon parcours et je fais mes courses plus vite.</p>
-            <span class="enter">Entrer</span>
-          </button>
-          <button class="profile-card reveal" data-role="collaborateur" type="button">
-            <h3>Collaborateur</h3>
-            <p>Je traite les demandes clients et je gere stocks et reassorts.</p>
-            <span class="enter">Entrer</span>
-          </button>
-          <button class="profile-card reveal" data-role="manager" type="button">
-            <h3>Manager</h3>
-            <p>Je pilote l'activite, j'analyse les rayons et je suis les alertes.</p>
-            <span class="enter">Entrer</span>
-          </button>
+          <button class="profile-card client reveal" data-role="client"><div class="p-icon">🛒</div><h3>Client</h3><p>Je prepare ma liste, je lance mon parcours et je fais mes courses plus vite.</p><span class="enter">Entrer →</span></button>
+          <button class="profile-card collaborateur reveal" data-role="collaborateur"><div class="p-icon">📦</div><h3>Collaborateur</h3><p>Je traite les demandes clients et je gere stocks et reassorts.</p><span class="enter">Entrer →</span></button>
+          <button class="profile-card manager reveal" data-role="manager"><div class="p-icon">📈</div><h3>Manager</h3><p>Je pilote l'activite, j'analyse les rayons et je suis les alertes.</p><span class="enter">Entrer →</span></button>
         </div>
-        <div class="lp-footer">SmartWay · Chaque pas compte. · Demonstration — donnees fictives.</div>
+        <div class="lp-footer">SmartWay · « Chaque pas compte. » · Demonstration — donnees fictives.</div>
       </section>
     </div>
   `);
   root.appendChild(view);
 
+  // --- Wiring profils (hero + CTA final) ---
   view.querySelectorAll("[data-role]").forEach((c) =>
     c.addEventListener("click", () => onSelectRole(c.dataset.role))
   );
@@ -197,6 +153,7 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
     view.querySelector("#lp-circuit").scrollIntoView({ behavior: "smooth" })
   );
 
+  // --- Construction des arrets sur le trace ---
   const routeEl = view.querySelector("#lp-route");
   const stopsG = view.querySelector("#lp-stops");
   const shopper = view.querySelector("#lp-shopper");
@@ -214,14 +171,17 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
   });
   const stepEls = [...view.querySelectorAll(".lp-step")];
 
+  // --- Fond anime pilote par le scroll (canvas frame par frame) ---
   const bg = createScrollBackground(view.querySelector("#lp-bg-canvas"), { reduce });
 
+  // --- Reveal au scroll ---
   const io = new IntersectionObserver(
     (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("in")),
     { threshold: 0.25 }
   );
   view.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
+  // --- Elements animes ---
   const nav = view.querySelector("#lp-nav");
   const hero = view.querySelector("#lp-hero");
   const heroScene = view.querySelector(".lp-hero-scene");
@@ -232,9 +192,6 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
   const appEta = view.querySelector("#lp-app-eta");
   const nextEl = view.querySelector("#lp-next");
   const footEl = view.querySelector("#lp-foot");
-  const photo1 = view.querySelector(".lp-photo-1");
-  const photo2 = view.querySelector(".lp-photo-2");
-  const photo3 = view.querySelector(".lp-photo-3");
 
   const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
   let ticking = false;
@@ -246,20 +203,18 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
     const scrollY = window.scrollY;
     const sp = clamp(scrollY / (docH || 1));
     progressBar.style.transform = `scaleX(${sp})`;
-    nav.classList.toggle("solid", scrollY > vh * 0.55);
+    nav.classList.toggle("solid", scrollY > vh * 0.6);
+    // Fond reactif au scroll : la progression pilote la frame du canvas.
     view.style.setProperty("--sp", sp.toFixed(4));
     bg.setProgress(sp);
 
-    // Fond photo : fondu croise sur 3 plans selon le scroll.
-    if (photo1) photo1.style.opacity = String(clamp(1 - sp * 2.2));
-    if (photo2) photo2.style.opacity = String(clamp(1 - Math.abs(sp - 0.45) * 3.2));
-    if (photo3) photo3.style.opacity = String(clamp((sp - 0.55) * 2.4));
-
+    // Hero : zoom + fondu au scroll.
     if (!reduce) {
       const hp = clamp(scrollY / (heroScene.offsetHeight - vh || 1));
       hero.style.setProperty("--hp", hp);
     }
 
+    // Circuit : trace du parcours selon la progression dans la scene.
     const cRect = circuit.getBoundingClientRect();
     const cTop = scrollY + cRect.top;
     const p = clamp((scrollY - cTop) / (circuit.offsetHeight - vh || 1));
@@ -286,7 +241,7 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
       footEl.innerHTML = `Prochain arret : <b>${current.rayon}</b>`;
     } else {
       nextEl.textContent = "Parcours termine";
-      footEl.innerHTML = `Caisse la plus rapide atteinte`;
+      footEl.innerHTML = `🎉 Caisse la plus rapide atteinte`;
     }
   }
 
