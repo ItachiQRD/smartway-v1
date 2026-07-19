@@ -3,6 +3,7 @@
 // dans un mockup de telephone ou le parcours se trace au fil du scroll.
 
 import { h } from "./ui.js";
+import { createScrollBackground } from "./landingBg.js";
 
 const STOPS = [
   { frac: 0.1, n: 1, rayon: "Fruits & Legumes", aisle: "Allee A" },
@@ -40,7 +41,7 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
   const view = h(`
     <div class="lp">
       <div class="lp-progress" id="lp-progress"></div>
-      <div class="lp-bg"><div class="lp-grid"></div><div class="lp-glow lp-glow-1"></div><div class="lp-glow lp-glow-2"></div></div>
+      <div class="lp-bg"><canvas class="lp-bg-canvas" id="lp-bg-canvas"></canvas></div>
 
       <nav class="lp-nav" id="lp-nav">
         <div class="logo"><span class="logo-mark">S</span> SmartWay</div>
@@ -167,6 +168,9 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
   });
   const stepEls = [...view.querySelectorAll(".lp-step")];
 
+  // --- Fond anime pilote par le scroll (canvas frame par frame) ---
+  const bg = createScrollBackground(view.querySelector("#lp-bg-canvas"), { reduce });
+
   // --- Reveal au scroll ---
   const io = new IntersectionObserver(
     (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("in")),
@@ -197,8 +201,9 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
     const sp = clamp(scrollY / (docH || 1));
     progressBar.style.transform = `scaleX(${sp})`;
     nav.classList.toggle("solid", scrollY > vh * 0.6);
-    // Fond reactif au scroll : decale teinte et halos selon la progression.
+    // Fond reactif au scroll : la progression pilote la frame du canvas.
     view.style.setProperty("--sp", sp.toFixed(4));
+    bg.setProgress(sp);
 
     // Hero : zoom + fondu au scroll.
     if (!reduce) {
@@ -252,5 +257,6 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", onScroll);
     io.disconnect();
+    bg.destroy();
   };
 }
