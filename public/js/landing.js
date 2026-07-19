@@ -45,45 +45,60 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
 
       <nav class="lp-nav" id="lp-nav">
         <div class="logo"><span class="logo-mark">S</span> SmartWay</div>
-        <button class="btn btn-primary btn-sm" id="lp-cta-top">Essayer la demo</button>
-        <button class="btn btn-ghost btn-sm lp-cta-guided" id="lp-cta-guided">▶ Presentation guidee</button>
+        <div class="lp-nav-actions">
+          <button class="btn btn-ghost btn-sm lp-cta-guided" id="lp-cta-guided">Presentation</button>
+          <button class="btn btn-primary btn-sm" id="lp-cta-top">Essayer la demo</button>
+        </div>
       </nav>
 
       <!-- HERO -->
       <section class="lp-scene lp-hero-scene">
         <div class="lp-hero" id="lp-hero">
+          <div class="lp-hero-scrim" aria-hidden="true"></div>
           <div class="lp-hero-inner">
-            <span class="lp-eyebrow">RetailTech · Experience V1</span>
-            <h1 class="lp-title">SMART<span class="lp-title-accent">WAY</span></h1>
-            <p class="lp-tagline">Le magasin intelligent, pour tous ses acteurs.</p>
-            <p class="lp-slogan">« Chaque pas compte. »</p>
+            <p class="lp-eyebrow">RetailTech · Demonstration</p>
+            <h1 class="lp-title">Smart<span class="lp-title-accent">Way</span></h1>
+            <p class="lp-tagline">Chaque pas compte.</p>
+            <p class="lp-lead">Parcours client, operations magasin et pilotage — une seule plateforme.</p>
             <div class="lp-hero-profiles">
-              <button class="lp-prof client" data-role="client"><span class="lp-prof-ico">🛒</span><b>Client</b><small>Gagner du temps</small></button>
-              <button class="lp-prof collaborateur" data-role="collaborateur"><span class="lp-prof-ico">📦</span><b>Collaborateur</b><small>Gagner en efficacite</small></button>
-              <button class="lp-prof manager" data-role="manager"><span class="lp-prof-ico">📈</span><b>Manager</b><small>Piloter le magasin</small></button>
+              <button class="lp-prof" data-role="client" type="button"><span class="lp-prof-role">Client</span><span class="lp-prof-desc">Gagner du temps</span></button>
+              <button class="lp-prof" data-role="collaborateur" type="button"><span class="lp-prof-role">Collaborateur</span><span class="lp-prof-desc">Gagner en efficacite</span></button>
+              <button class="lp-prof" data-role="manager" type="button"><span class="lp-prof-role">Manager</span><span class="lp-prof-desc">Piloter le magasin</span></button>
             </div>
           </div>
-          <button class="lp-scroll-hint" id="lp-hint" aria-label="Defiler vers le bas">
+          <button class="lp-scroll-hint" id="lp-hint" aria-label="Defiler vers le bas" type="button">
             <span class="lp-mouse"><span class="lp-wheel"></span></span>
-            <span class="lp-hint-txt">Decouvrir l'experience</span>
+            <span class="lp-hint-txt">Decouvrir</span>
           </button>
         </div>
       </section>
 
       <!-- STATEMENTS -->
       <section class="lp-scene lp-statements">
-        <div class="lp-statement reveal"><span class="lp-stat-num">−30%</span><h2>de temps perdu en magasin</h2><p>Le bon produit, le bon chemin, la bonne caisse — sans hesiter.</p></div>
-        <div class="lp-statement reveal" data-align="right"><span class="lp-stat-num">+1</span><h2>collaborateur augmente</h2><p>Demandes clients, ruptures et reassorts priorises en temps reel.</p></div>
-        <div class="lp-statement reveal"><span class="lp-stat-num">360°</span><h2>de vision pour le manager</h2><p>Frequentation, performance des rayons et heatmap des flux.</p></div>
+        <div class="lp-statement reveal">
+          <span class="lp-stat-num">−30%</span>
+          <h2>de temps perdu en magasin</h2>
+          <p>Le bon produit, le bon chemin, la bonne caisse — sans hesiter.</p>
+        </div>
+        <div class="lp-statement reveal" data-align="right">
+          <span class="lp-stat-num">+1</span>
+          <h2>collaborateur augmente</h2>
+          <p>Demandes clients, ruptures et reassorts priorises en temps reel.</p>
+        </div>
+        <div class="lp-statement reveal">
+          <span class="lp-stat-num">360°</span>
+          <h2>de vision pour le manager</h2>
+          <p>Frequentation, performance des rayons et heatmap des flux.</p>
+        </div>
       </section>
 
       <!-- CIRCUIT (pinned, route drawn on scroll) -->
       <section class="lp-scene lp-circuit" id="lp-circuit">
         <div class="lp-circuit-stage">
           <div class="lp-circuit-copy">
-            <span class="lp-eyebrow">Le circuit, dans votre poche</span>
-            <h2>Suivez le <span class="lp-title-accent">chemin le plus court</span>.</h2>
-            <p>Votre liste devient un parcours optimise. SmartWay trace l'itineraire, arret par arret, jusqu'a la caisse la plus rapide.</p>
+            <p class="lp-eyebrow">Parcours en magasin</p>
+            <h2>Le chemin le plus court, dans votre poche.</h2>
+            <p>Votre liste devient un itineraire optimise — arret par arret, jusqu’a la caisse la plus rapide.</p>
             <div class="lp-circuit-kpis">
               <div><b id="lp-eta">12</b><span>min estimees</span></div>
               <div><b id="lp-count">0/5</b><span>arrets</span></div>
@@ -117,24 +132,49 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
 
       <!-- PILIERS -->
       <section class="lp-scene lp-pillars">
-        <h2 class="lp-section-title reveal">Une seule application, trois superpouvoirs.</h2>
+        <h2 class="lp-section-title reveal">Trois espaces. Une plateforme.</h2>
+        <p class="lp-section-sub reveal">Chaque acteur du magasin dispose d’un parcours adapte a son role.</p>
         <div class="lp-pillar-grid">
-          <div class="lp-pillar reveal client"><div class="p-icon">🛒</div><h3>Client</h3><p>Liste de courses, parcours optimise, caisse la plus rapide, Scan &amp; Go et demande d'aide.</p></div>
-          <div class="lp-pillar reveal collaborateur"><div class="p-icon">📦</div><h3>Collaborateur</h3><p>Demandes clients, alertes stock et taches de reassort priorisees.</p></div>
-          <div class="lp-pillar reveal manager"><div class="p-icon">📈</div><h3>Manager</h3><p>KPIs temps reel, performance des rayons, heatmap des flux et alertes.</p></div>
+          <article class="lp-pillar reveal">
+            <span class="lp-pillar-label">01</span>
+            <h3>Client</h3>
+            <p>Liste de courses, parcours optimise, caisse la plus rapide et demande d’aide.</p>
+          </article>
+          <article class="lp-pillar reveal">
+            <span class="lp-pillar-label">02</span>
+            <h3>Collaborateur</h3>
+            <p>Demandes clients, alertes stock et taches de reassort priorisees.</p>
+          </article>
+          <article class="lp-pillar reveal">
+            <span class="lp-pillar-label">03</span>
+            <h3>Manager</h3>
+            <p>KPIs temps reel, performance des rayons, heatmap des flux et alertes.</p>
+          </article>
         </div>
       </section>
 
       <!-- CTA / PROFILS -->
       <section class="lp-scene profiles lp-final" id="profiles">
-        <h2 class="reveal">Entrez dans la demonstration</h2>
-        <p class="sub reveal">Choisissez votre profil pour acceder a votre espace.</p>
+        <h2 class="reveal">Lancer la demonstration</h2>
+        <p class="sub reveal">Choisissez un profil pour entrer dans l’espace correspondant.</p>
         <div class="profile-grid">
-          <button class="profile-card client reveal" data-role="client"><div class="p-icon">🛒</div><h3>Client</h3><p>Je prepare ma liste, je lance mon parcours et je fais mes courses plus vite.</p><span class="enter">Entrer →</span></button>
-          <button class="profile-card collaborateur reveal" data-role="collaborateur"><div class="p-icon">📦</div><h3>Collaborateur</h3><p>Je traite les demandes clients et je gere stocks et reassorts.</p><span class="enter">Entrer →</span></button>
-          <button class="profile-card manager reveal" data-role="manager"><div class="p-icon">📈</div><h3>Manager</h3><p>Je pilote l'activite, j'analyse les rayons et je suis les alertes.</p><span class="enter">Entrer →</span></button>
+          <button class="profile-card reveal" data-role="client" type="button">
+            <h3>Client</h3>
+            <p>Preparateur de liste, parcours et caisses.</p>
+            <span class="enter">Entrer</span>
+          </button>
+          <button class="profile-card reveal" data-role="collaborateur" type="button">
+            <h3>Collaborateur</h3>
+            <p>Demandes, stocks et reassorts.</p>
+            <span class="enter">Entrer</span>
+          </button>
+          <button class="profile-card reveal" data-role="manager" type="button">
+            <h3>Manager</h3>
+            <p>Pilotage, heatmap et alertes.</p>
+            <span class="enter">Entrer</span>
+          </button>
         </div>
-        <div class="lp-footer">SmartWay · « Chaque pas compte. » · Demonstration — donnees fictives.</div>
+        <div class="lp-footer">SmartWay · Demonstration — donnees fictives</div>
       </section>
     </div>
   `);
