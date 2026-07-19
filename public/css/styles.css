@@ -1205,35 +1205,40 @@ canvas.store {
   z-index: 60;
 }
 
-/* Fond fixe : scene generative au canvas, animee frame par frame au scroll */
+/* Fond fixe : une photo par section, fondu enchaine + lent zoom (Ken Burns) */
 .lp-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: #06101f; /* filet de securite le temps que le canvas peigne */
+  background: #06101f;
   overflow: hidden;
 }
-.lp-bg-canvas {
+.lp-bg-img {
+  position: absolute;
+  inset: -4%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.08);
+  transition: opacity 1.3s ease, transform 1.3s ease;
+  will-change: opacity, transform;
+}
+.lp-bg-img.on {
+  opacity: 0.85;
+  transform: scale(1);
+  animation: lp-kenburns 26s ease-in-out infinite alternate;
+}
+@keyframes lp-kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.09); }
+}
+/* Voile sombre au-dessus des photos : garantit la lisibilite du texte */
+.lp-bg-scrim {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-/* Photo optionnelle (public/img/lp-bg.jpg) : texture discrete au-dessus du
-   canvas, parallaxe legere au scroll. Supprimee automatiquement si absente. */
-.lp-bg-photo {
-  position: absolute;
-  inset: -6% 0;
-  width: 100%;
-  height: 112%;
-  object-fit: cover;
-  opacity: 0.14;
-  mix-blend-mode: screen;
-  transform: translateY(calc(var(--sp, 0) * -4%));
-  mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
-  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 45%, rgba(3, 9, 18, 0.5), rgba(3, 9, 18, 0.75)),
+    linear-gradient(180deg, rgba(3, 9, 18, 0.65), rgba(3, 9, 18, 0.35) 30%, rgba(3, 9, 18, 0.35) 70%, rgba(3, 9, 18, 0.7));
 }
 
 .lp > *:not(.lp-bg) {
@@ -1469,38 +1474,12 @@ canvas.store {
 .lp-stat-txt {
   display: flex;
   flex-direction: column;
+  max-width: 640px;
 }
-.lp-stat-img {
-  margin: 0;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
-}
-.lp-stat-img img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  aspect-ratio: 16 / 10;
-  max-height: 44vh;
-}
-@media (min-width: 860px) {
-  .lp-statement {
-    flex-direction: row;
-    align-items: center;
-  }
-  .lp-statement > * {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-  .lp-statement[data-align="right"] {
-    flex-direction: row-reverse;
-  }
-  .lp-statement[data-align="right"] .lp-stat-txt {
-    text-align: right;
-    align-items: flex-end;
-  }
+.lp-statement[data-align="right"] .lp-stat-txt {
+  margin-left: auto;
+  text-align: right;
+  align-items: flex-end;
 }
 .lp-stat-num {
   font-size: clamp(54px, 11vw, 118px);
@@ -1982,8 +1961,13 @@ canvas.store {
 @media (prefers-reduced-motion: reduce) {
   .lp-shopper,
   .lp-wheel,
+  .lp-bg-img.on,
   .lp-scroll-hint i {
     animation: none;
+  }
+  .lp-bg-img {
+    transition: opacity 0.4s ease;
+    transform: none;
   }
   .reveal {
     opacity: 1;

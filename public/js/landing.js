@@ -3,7 +3,6 @@
 // dans un mockup de telephone ou le parcours se trace au fil du scroll.
 
 import { h } from "./ui.js";
-import { createScrollBackground } from "./landingBg.js";
 
 // Icones SVG (trait uniforme) : plus nettes et coherentes que des emojis.
 const ICONS = {
@@ -66,9 +65,12 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
   const view = h(`
     <div class="lp">
       <div class="lp-progress" id="lp-progress"></div>
-      <div class="lp-bg">
-        <canvas class="lp-bg-canvas" id="lp-bg-canvas"></canvas>
-        <img class="lp-bg-photo" src="img/landing/aisle-blur.png" alt="" aria-hidden="true" onerror="this.remove()" />
+      <div class="lp-bg" id="lp-bg">
+        <div class="lp-bg-img" data-bg="aisle" style="background-image:url('img/landing/aisle-blur.png')"></div>
+        <div class="lp-bg-img" data-bg="cart" style="background-image:url('img/landing/cart-spotlight.png')"></div>
+        <div class="lp-bg-img" data-bg="route" style="background-image:url('img/landing/route-plan.png')"></div>
+        <div class="lp-bg-img" data-bg="aerial" style="background-image:url('img/landing/store-aerial.png')"></div>
+        <div class="lp-bg-scrim"></div>
       </div>
 
       <nav class="lp-nav" id="lp-nav">
@@ -98,19 +100,16 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
         </div>
       </section>
 
-      <!-- STATEMENTS -->
-      <section class="lp-scene lp-statements">
+      <!-- STATEMENTS (le fond plein ecran illustre chaque message) -->
+      <section class="lp-scene lp-statements" id="lp-statements">
         <div class="lp-statement reveal">
           <div class="lp-stat-txt"><span class="lp-stat-num">−30%</span><h2>de temps perdu en magasin</h2><p>Le bon produit, le bon chemin, la bonne caisse — sans hesiter.</p></div>
-          <figure class="lp-stat-img"><img src="img/landing/cart-spotlight.png" alt="Caddie sous un halo de lumiere dans un magasin sombre" loading="lazy" /></figure>
         </div>
         <div class="lp-statement reveal" data-align="right">
           <div class="lp-stat-txt"><span class="lp-stat-num">+1</span><h2>collaborateur augmente</h2><p>Demandes clients, ruptures et reassorts priorises en temps reel.</p></div>
-          <figure class="lp-stat-img"><img src="img/landing/aisle-blur.png" alt="Rayon de magasin en lumiere douce" loading="lazy" /></figure>
         </div>
         <div class="lp-statement reveal">
           <div class="lp-stat-txt"><span class="lp-stat-num">360°</span><h2>de vision pour le manager</h2><p>Frequentation, performance des rayons et heatmap des flux.</p></div>
-          <figure class="lp-stat-img"><img src="img/landing/store-aerial.png" alt="Vue aerienne d'un magasin avec zones de chaleur" loading="lazy" /></figure>
         </div>
       </section>
 
@@ -240,8 +239,16 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
   });
   const stepEls = [...view.querySelectorAll(".lp-step")];
 
-  // --- Fond anime pilote par le scroll (canvas frame par frame) ---
-  const bg = createScrollBackground(view.querySelector("#lp-bg-canvas"), { reduce });
+  // --- Fond photo : une image par section, fondu enchaine + lent zoom ---
+  const bgImgs = new Map(
+    [...view.querySelectorAll(".lp-bg-img")].map((el) => [el.dataset.bg, el])
+  );
+  let activeBg = null;
+  function setBg(key) {
+    if (key === activeBg) return;
+    activeBg = key;
+    bgImgs.forEach((el, k) => el.classList.toggle("on", k === key));
+  }
 
   // --- Reveal au scroll ---
   const io = new IntersectionObserver(
@@ -262,6 +269,15 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
   const nextEl = view.querySelector("#lp-next");
   const footEl = view.querySelector("#lp-foot");
 
+  // Section → image de fond.
+  const bgSections = [
+    { el: heroScene, key: "aisle" },
+    { el: view.querySelector("#lp-statements"), key: "cart" },
+    { el: circuit, key: "route" },
+    { el: view.querySelector(".lp-features"), key: "aerial" },
+    { el: view.querySelector("#profiles"), key: "aisle" },
+  ];
+
   const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
   let ticking = false;
 
@@ -273,9 +289,15 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
     const sp = clamp(scrollY / (docH || 1));
     progressBar.style.transform = `scaleX(${sp})`;
     nav.classList.toggle("solid", scrollY > vh * 0.6);
-    // Fond reactif au scroll : la progression pilote la frame du canvas.
     view.style.setProperty("--sp", sp.toFixed(4));
-    bg.setProgress(sp);
+
+    // Fond : l'image correspond a la section visible (transition en CSS).
+    const probe = scrollY + vh * 0.5;
+    let key = "aisle";
+    for (const s of bgSections) {
+      if (probe >= s.el.offsetTop) key = s.key;
+    }
+    setBg(key);
 
     // Hero : zoom + fondu au scroll.
     if (!reduce) {
@@ -329,6 +351,5 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", onScroll);
     io.disconnect();
-    bg.destroy();
   };
 }
