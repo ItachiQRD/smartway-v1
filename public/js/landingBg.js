@@ -9,11 +9,11 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const smooth = (t) => t * t * (3 - 2 * t);
 
-// Palette sobre : reste dans le bleu nuit, accent vert premium discret.
+// Palette sobre : navy profond → vert premium (lisibilite du texte au premier plan).
 const PALETTE = [
-  { top: [6, 12, 22], mid: [8, 18, 32], bot: [5, 10, 18], accent: [148, 174, 204], glow: [14, 159, 110] },
-  { top: [5, 14, 26], mid: [7, 22, 36], bot: [4, 12, 22], accent: [130, 168, 190], glow: [14, 159, 110] },
-  { top: [4, 16, 24], mid: [6, 24, 34], bot: [3, 14, 20], accent: [120, 170, 160], glow: [16, 170, 120] },
+  { top: [8, 16, 28], mid: [12, 26, 40], bot: [10, 20, 32], accent: [120, 160, 180], glow: [14, 159, 110] },
+  { top: [8, 20, 30], mid: [12, 32, 40], bot: [10, 24, 34], accent: [100, 170, 160], glow: [16, 170, 120] },
+  { top: [8, 22, 26], mid: [12, 36, 34], bot: [10, 26, 28], accent: [90, 180, 140], glow: [18, 175, 120] },
 ];
 
 function mixColor(c1, c2, t) {
@@ -127,7 +127,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
   function drawOrbs(pal, p, time) {
     ctx.globalCompositeOperation = "lighter";
     const orbs = [
-      { x: lerp(0.85, 0.15, p) * W, y: lerp(0.08, 0.55, p) * H + Math.sin(time * 0.4) * 14, r: W * 0.38, c: pal.glow, a: 0.07 },
+      { x: lerp(0.85, 0.15, p) * W, y: lerp(0.08, 0.55, p) * H + Math.sin(time * 0.4) * 14, r: W * 0.38, c: pal.glow, a: 0.08 },
       { x: lerp(0.08, 0.9, p) * W, y: lerp(0.9, 0.25, p) * H + Math.cos(time * 0.33) * 16, r: W * 0.32, c: pal.accent, a: 0.05 },
     ];
     for (const o of orbs) {
@@ -154,7 +154,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
       const y = horizon + (H - horizon) / z;
       if (y > H + 40 || y < horizon) continue;
       const fade = clamp(1 - z / rows);
-      ctx.strokeStyle = rgba(pal.accent, 0.02 + fade * 0.045);
+      ctx.strokeStyle = rgba(pal.accent, 0.015 + fade * 0.04);
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(W, y);
@@ -164,7 +164,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
     const cols = 9;
     for (let j = -cols; j <= cols; j++) {
       const xB = vpX + (j / cols) * W * 1.25;
-      ctx.strokeStyle = rgba(pal.accent, 0.03);
+      ctx.strokeStyle = rgba(pal.accent, 0.028);
       ctx.beginPath();
       ctx.moveTo(lerp(vpX, xB, 0.04), horizon + 1);
       ctx.lineTo(xB, H);
@@ -174,7 +174,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
     // Lueur d'horizon qui s'intensifie avec la progression.
     const hg = ctx.createLinearGradient(0, horizon - 60, 0, horizon + 90);
     hg.addColorStop(0, rgba(pal.glow, 0));
-    hg.addColorStop(0.5, rgba(pal.glow, 0.03 + p * 0.05));
+    hg.addColorStop(0.5, rgba(pal.glow, 0.05 + p * 0.09));
     hg.addColorStop(1, rgba(pal.glow, 0));
     ctx.fillStyle = hg;
     ctx.fillRect(0, horizon - 60, W, 150);
@@ -204,7 +204,7 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
 
     for (const pass of [
       { width: th.width * 3.2, alpha: 0.05 },
-      { width: th.width, alpha: 0.32 },
+      { width: th.width * 0.9, alpha: 0.35 },
     ]) {
       ctx.strokeStyle = rgba(pal.glow, pass.alpha * (0.35 + local * 0.45));
       ctx.lineWidth = pass.width;
@@ -246,10 +246,9 @@ export function createScrollBackground(canvas, { reduce = false } = {}) {
   }
 
   function drawVignette() {
-    const g = ctx.createRadialGradient(W / 2, H * 0.42, Math.min(W, H) * 0.22, W / 2, H * 0.5, Math.max(W, H) * 0.78);
-    g.addColorStop(0, "rgba(0,0,0,0.12)");
-    g.addColorStop(0.55, "rgba(2,8,16,0.35)");
-    g.addColorStop(1, "rgba(2,8,16,0.72)");
+    const g = ctx.createRadialGradient(W / 2, H * 0.45, Math.min(W, H) * 0.35, W / 2, H * 0.5, Math.max(W, H) * 0.75);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(2,8,16,0.55)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
   }
