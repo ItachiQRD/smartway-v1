@@ -5,6 +5,31 @@
 import { h } from "./ui.js";
 import { createScrollBackground } from "./landingBg.js";
 
+// Icones SVG (trait uniforme) : plus nettes et coherentes que des emojis.
+const ICONS = {
+  cart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/><path d="M3 3h2.2l2.4 12.2a1.4 1.4 0 0 0 1.4 1.1h7.9a1.4 1.4 0 0 0 1.4-1.1L20 7H6"/></svg>`,
+  box: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8.2 12 3 3 8.2v7.6L12 21l9-5.2z"/><path d="M3 8.2 12 13l9-4.8M12 13v8"/></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="m7.5 14.5 4-4 3 3 5-6"/></svg>`,
+  route: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>`,
+  scan: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h.5M11 12h2.5M17 12h.5"/></svg>`,
+  help: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-8 8c-1.2 0-2.3-.2-3.3-.7L4 20l1.2-4.2A8 8 0 1 1 21 11.5z"/><path d="M10.2 9.6a2 2 0 0 1 3.9.6c0 1.3-1.9 1.6-1.9 2.7"/><path d="M12.2 15.8h.01"/></svg>`,
+  alert: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>`,
+  heatmap: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6" fill="currentColor" opacity="0.28" stroke="none"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6" fill="currentColor" opacity="0.6" stroke="none"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6"/></svg>`,
+};
+
+// Mini-illustration pour la carte "Pilotage temps reel".
+function miniKpiSvg() {
+  const heights = [34, 52, 42, 66, 50, 78, 60];
+  const bars = heights
+    .map((hh, i) => `<rect class="mf-bar" x="${22 + i * 32}" y="${104 - hh}" width="16" height="${hh}" rx="4"/>`)
+    .join("");
+  return `<svg viewBox="0 0 260 120" fill="none" preserveAspectRatio="xMidYMid meet">
+    ${bars}
+    <path class="mf-line" d="M30 78 L62 60 L94 68 L126 46 L158 58 L190 32 L222 46"/>
+    <circle class="mf-dot" cx="190" cy="32" r="4"/>
+  </svg>`;
+}
+
 const STOPS = [
   { frac: 0.1, n: 1, rayon: "Fruits & Legumes", aisle: "Allee A" },
   { frac: 0.3, n: 2, rayon: "Cremerie & Frais", aisle: "Allee B" },
@@ -43,7 +68,7 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
       <div class="lp-progress" id="lp-progress"></div>
       <div class="lp-bg">
         <canvas class="lp-bg-canvas" id="lp-bg-canvas"></canvas>
-        <img class="lp-bg-photo" src="img/lp-bg.jpg" alt="" aria-hidden="true" onerror="this.remove()" />
+        <img class="lp-bg-photo" src="img/landing/aisle-blur.png" alt="" aria-hidden="true" onerror="this.remove()" />
       </div>
 
       <nav class="lp-nav" id="lp-nav">
@@ -61,9 +86,9 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
             <p class="lp-tagline">Le magasin intelligent, pour tous ses acteurs.</p>
             <p class="lp-slogan">« Chaque pas compte. »</p>
             <div class="lp-hero-profiles">
-              <button class="lp-prof client" data-role="client"><span class="lp-prof-ico">🛒</span><b>Client</b><small>Gagner du temps</small></button>
-              <button class="lp-prof collaborateur" data-role="collaborateur"><span class="lp-prof-ico">📦</span><b>Collaborateur</b><small>Gagner en efficacite</small></button>
-              <button class="lp-prof manager" data-role="manager"><span class="lp-prof-ico">📈</span><b>Manager</b><small>Piloter le magasin</small></button>
+              <button class="lp-prof client" data-role="client"><span class="lp-prof-ico">${ICONS.cart}</span><b>Client</b><small>Gagner du temps</small></button>
+              <button class="lp-prof collaborateur" data-role="collaborateur"><span class="lp-prof-ico">${ICONS.box}</span><b>Collaborateur</b><small>Gagner en efficacite</small></button>
+              <button class="lp-prof manager" data-role="manager"><span class="lp-prof-ico">${ICONS.chart}</span><b>Manager</b><small>Piloter le magasin</small></button>
             </div>
           </div>
           <button class="lp-scroll-hint" id="lp-hint" aria-label="Defiler vers le bas">
@@ -75,9 +100,18 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
 
       <!-- STATEMENTS -->
       <section class="lp-scene lp-statements">
-        <div class="lp-statement reveal"><span class="lp-stat-num">−30%</span><h2>de temps perdu en magasin</h2><p>Le bon produit, le bon chemin, la bonne caisse — sans hesiter.</p></div>
-        <div class="lp-statement reveal" data-align="right"><span class="lp-stat-num">+1</span><h2>collaborateur augmente</h2><p>Demandes clients, ruptures et reassorts priorises en temps reel.</p></div>
-        <div class="lp-statement reveal"><span class="lp-stat-num">360°</span><h2>de vision pour le manager</h2><p>Frequentation, performance des rayons et heatmap des flux.</p></div>
+        <div class="lp-statement reveal">
+          <div class="lp-stat-txt"><span class="lp-stat-num">−30%</span><h2>de temps perdu en magasin</h2><p>Le bon produit, le bon chemin, la bonne caisse — sans hesiter.</p></div>
+          <figure class="lp-stat-img"><img src="img/landing/cart-spotlight.png" alt="Caddie sous un halo de lumiere dans un magasin sombre" loading="lazy" /></figure>
+        </div>
+        <div class="lp-statement reveal" data-align="right">
+          <div class="lp-stat-txt"><span class="lp-stat-num">+1</span><h2>collaborateur augmente</h2><p>Demandes clients, ruptures et reassorts priorises en temps reel.</p></div>
+          <figure class="lp-stat-img"><img src="img/landing/aisle-blur.png" alt="Rayon de magasin en lumiere douce" loading="lazy" /></figure>
+        </div>
+        <div class="lp-statement reveal">
+          <div class="lp-stat-txt"><span class="lp-stat-num">360°</span><h2>de vision pour le manager</h2><p>Frequentation, performance des rayons et heatmap des flux.</p></div>
+          <figure class="lp-stat-img"><img src="img/landing/store-aerial.png" alt="Vue aerienne d'un magasin avec zones de chaleur" loading="lazy" /></figure>
+        </div>
       </section>
 
       <!-- CIRCUIT (pinned, route drawn on scroll) -->
@@ -118,24 +152,59 @@ export function mountLanding(root, { onSelectRole, onStartDemo, onStartGuided })
         </div>
       </section>
 
-      <!-- PILIERS -->
-      <section class="lp-scene lp-pillars">
-        <h2 class="lp-section-title reveal">Une seule application, trois superpouvoirs.</h2>
-        <div class="lp-pillar-grid">
-          <div class="lp-pillar reveal client"><div class="p-icon">🛒</div><h3>Client</h3><p>Liste de courses, parcours optimise, caisse la plus rapide, Scan &amp; Go et demande d'aide.</p></div>
-          <div class="lp-pillar reveal collaborateur"><div class="p-icon">📦</div><h3>Collaborateur</h3><p>Demandes clients, alertes stock et taches de reassort priorisees.</p></div>
-          <div class="lp-pillar reveal manager"><div class="p-icon">📈</div><h3>Manager</h3><p>KPIs temps reel, performance des rayons, heatmap des flux et alertes.</p></div>
+      <!-- FONCTIONNALITES -->
+      <section class="lp-scene lp-features">
+        <span class="lp-eyebrow reveal">Sous le capot</span>
+        <h2 class="lp-section-title reveal">Tout ce que SmartWay orchestre en coulisses.</h2>
+        <div class="lp-feature-grid">
+          <div class="lp-feature wide reveal">
+            <div class="lp-feature-viz photo"><img src="img/landing/route-plan.png" alt="Plan de magasin avec itineraires lumineux" loading="lazy" /></div>
+            <div class="lp-feature-body">
+              <span class="f-icon">${ICONS.route}</span>
+              <h3>Parcours optimise</h3>
+              <p>La liste de courses devient un itineraire calcule rayon par rayon, jusqu'a la caisse la plus rapide.</p>
+            </div>
+          </div>
+          <div class="lp-feature wide reveal">
+            <div class="lp-feature-viz">${miniKpiSvg()}</div>
+            <div class="lp-feature-body">
+              <span class="f-icon">${ICONS.chart}</span>
+              <h3>Pilotage temps reel</h3>
+              <p>Frequentation, performance des rayons et heatmap des flux, rafraichis en continu pour le manager.</p>
+            </div>
+          </div>
+          <div class="lp-feature reveal">
+            <span class="f-icon">${ICONS.scan}</span>
+            <h3>Scan &amp; Go</h3>
+            <p>Le client scanne, paie et sort — zero file d'attente.</p>
+          </div>
+          <div class="lp-feature reveal">
+            <span class="f-icon">${ICONS.help}</span>
+            <h3>Aide en rayon</h3>
+            <p>Une demande client arrive directement au collaborateur le plus proche.</p>
+          </div>
+          <div class="lp-feature reveal">
+            <span class="f-icon">${ICONS.alert}</span>
+            <h3>Alertes stock</h3>
+            <p>Ruptures detectees et reassorts priorises automatiquement.</p>
+          </div>
+          <div class="lp-feature reveal">
+            <span class="f-icon">${ICONS.heatmap}</span>
+            <h3>Heatmap des flux</h3>
+            <p>Les zones chaudes du magasin, visibles d'un coup d'oeil.</p>
+          </div>
         </div>
       </section>
 
       <!-- CTA / PROFILS -->
       <section class="lp-scene profiles lp-final" id="profiles">
-        <h2 class="reveal">Entrez dans la demonstration</h2>
-        <p class="sub reveal">Choisissez votre profil pour acceder a votre espace.</p>
+        <span class="lp-eyebrow reveal">A vous de jouer</span>
+        <h2 class="reveal">Choisissez votre role, entrez dans le magasin.</h2>
+        <p class="sub reveal">Trois espaces, une meme experience — la demo est ouverte.</p>
         <div class="profile-grid">
-          <button class="profile-card client reveal" data-role="client"><div class="p-icon">🛒</div><h3>Client</h3><p>Je prepare ma liste, je lance mon parcours et je fais mes courses plus vite.</p><span class="enter">Entrer →</span></button>
-          <button class="profile-card collaborateur reveal" data-role="collaborateur"><div class="p-icon">📦</div><h3>Collaborateur</h3><p>Je traite les demandes clients et je gere stocks et reassorts.</p><span class="enter">Entrer →</span></button>
-          <button class="profile-card manager reveal" data-role="manager"><div class="p-icon">📈</div><h3>Manager</h3><p>Je pilote l'activite, j'analyse les rayons et je suis les alertes.</p><span class="enter">Entrer →</span></button>
+          <button class="profile-card client reveal" data-role="client"><div class="p-icon">${ICONS.cart}</div><h3>Client</h3><p>Je prepare ma liste, je lance mon parcours et je fais mes courses plus vite.</p><span class="enter">Entrer →</span></button>
+          <button class="profile-card collaborateur reveal" data-role="collaborateur"><div class="p-icon">${ICONS.box}</div><h3>Collaborateur</h3><p>Je traite les demandes clients et je gere stocks et reassorts.</p><span class="enter">Entrer →</span></button>
+          <button class="profile-card manager reveal" data-role="manager"><div class="p-icon">${ICONS.chart}</div><h3>Manager</h3><p>Je pilote l'activite, j'analyse les rayons et je suis les alertes.</p><span class="enter">Entrer →</span></button>
         </div>
         <div class="lp-footer">SmartWay · « Chaque pas compte. » · Demonstration — donnees fictives.</div>
       </section>

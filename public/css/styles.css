@@ -1429,7 +1429,19 @@ canvas.store {
   background: rgba(13, 38, 48, 0.75);
 }
 .lp-prof-ico {
-  font-size: 24px;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  color: #4ade9d;
+  margin-bottom: 4px;
+}
+.lp-prof-ico svg {
+  width: 21px;
+  height: 21px;
 }
 .lp-prof b {
   font-size: 15px;
@@ -1450,12 +1462,45 @@ canvas.store {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  max-width: 760px;
+  gap: 28px;
+  max-width: 1060px;
+  margin: 0 auto;
 }
-.lp-statement[data-align="right"] {
-  margin-left: auto;
-  text-align: right;
-  align-items: flex-end;
+.lp-stat-txt {
+  display: flex;
+  flex-direction: column;
+}
+.lp-stat-img {
+  margin: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+.lp-stat-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 16 / 10;
+  max-height: 44vh;
+}
+@media (min-width: 860px) {
+  .lp-statement {
+    flex-direction: row;
+    align-items: center;
+  }
+  .lp-statement > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .lp-statement[data-align="right"] {
+    flex-direction: row-reverse;
+  }
+  .lp-statement[data-align="right"] .lp-stat-txt {
+    text-align: right;
+    align-items: flex-end;
+  }
 }
 .lp-stat-num {
   font-size: clamp(54px, 11vw, 118px);
@@ -1533,7 +1578,9 @@ canvas.store {
 
 /* Telephone */
 .lp-phone {
-  width: min(300px, 76vw);
+  /* Largeur bornee par la hauteur du viewport pour que le telephone
+     (ratio ~1:2.3) tienne toujours dans la scene sticky de 100vh. */
+  width: min(300px, 76vw, 36vh);
   padding: 12px;
   background: #0a1626;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1709,54 +1756,105 @@ canvas.store {
 }
 
 /* PILIERS */
-.lp-pillars {
+.lp-features {
   padding-top: 12vh;
   padding-bottom: 10vh;
+  text-align: center;
 }
 .lp-section-title {
   font-size: clamp(24px, 4vw, 40px);
-  color: #fff;
+  color: #f4f8fd;
   text-align: center;
   letter-spacing: -1px;
-  margin-bottom: 36px;
+  margin: 14px 0 36px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
-.lp-pillar-grid {
+.lp-feature-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 18px;
+  gap: 16px;
+  text-align: left;
 }
-.lp-pillar {
+.lp-feature {
   background: rgba(10, 22, 40, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius);
-  padding: 28px;
+  padding: 24px;
   backdrop-filter: blur(8px);
   transition: transform 0.2s, border-color 0.2s, background 0.2s;
 }
-.lp-pillar:hover {
-  transform: translateY(-6px);
+.lp-feature:hover {
+  transform: translateY(-5px);
   border-color: rgba(52, 211, 153, 0.45);
   background: rgba(13, 34, 46, 0.65);
 }
-.lp-pillar .p-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 14px;
+.lp-feature.wide {
   display: grid;
+  gap: 20px;
+  align-items: center;
+  padding: 26px;
+}
+.lp-feature-viz {
+  background: rgba(4, 12, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 14px;
+}
+.lp-feature-viz svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.lp-feature-viz.photo {
+  padding: 0;
+}
+.lp-feature-viz.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 13px;
+}
+.f-icon {
+  display: inline-grid;
   place-items: center;
-  font-size: 28px;
-  background: rgba(255, 255, 255, 0.07);
-  margin-bottom: 14px;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.22);
+  color: #4ade9d;
+  margin-bottom: 12px;
 }
-.lp-pillar h3 {
+.f-icon svg {
+  width: 24px;
+  height: 24px;
+}
+.lp-feature h3 {
   color: #f4f8fd;
-  font-size: 20px;
-  margin-bottom: 8px;
+  font-size: 19px;
+  margin-bottom: 7px;
 }
-.lp-pillar p {
+.lp-feature p {
   color: #c4d2e6;
   font-size: 14px;
   line-height: 1.6;
+}
+/* Mini-illustration SVG (carte Pilotage temps reel) */
+.mf-bar {
+  fill: rgba(94, 234, 212, 0.22);
+}
+.mf-line {
+  stroke: #34d399;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.5));
+}
+.mf-dot {
+  fill: #eafff5;
+  stroke: #34d399;
+  stroke-width: 2;
 }
 
 /* CTA final */
@@ -1786,14 +1884,30 @@ canvas.store {
   color: #4ade9d;
 }
 .lp .profile-card .p-icon {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.22);
+  color: #4ade9d;
+}
+.lp .profile-card .p-icon svg {
+  width: 26px;
+  height: 26px;
+}
+.lp-final .lp-eyebrow {
+  margin-bottom: 4px;
+}
+.lp-final {
+  text-align: center;
 }
 .lp-final h2 {
   color: #f4f8fd;
+  font-size: clamp(24px, 4vw, 40px);
+  letter-spacing: -1px;
+  margin: 14px 0 8px;
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
 .lp-final .sub {
   color: #c4d2e6;
+  font-size: 16px;
 }
 .lp-footer {
   text-align: center;
@@ -1816,8 +1930,20 @@ canvas.store {
 }
 
 @media (min-width: 760px) {
-  .lp-pillar-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .lp-feature-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .lp-feature.wide {
+    grid-column: span 2;
+    grid-template-columns: 1.1fr 1fr;
+  }
+}
+@media (max-width: 759px) {
+  .lp-feature.wide {
+    grid-template-columns: 1fr;
+  }
+  .lp-feature.wide .lp-feature-viz {
+    order: 2;
   }
 }
 
